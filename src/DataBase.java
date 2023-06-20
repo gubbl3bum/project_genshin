@@ -40,6 +40,14 @@ public class DataBase implements DataBase_operations {
         double elDmgB = scanner.nextDouble();
         Character newCharater = new Character(name,element,region,sex,age, weapon,health,attack,defense,critRate,critDmg,quality,elDmgB);
     }
+    public Character getCharacter(String name) {
+        for (Character character : characters) {
+            if (character.getName().equals(name)) {
+                return character;
+            }
+        }
+        return null;
+    }
     public void addCharacter(Character character) {
         if (!characters.contains(character)) {
             characters.add(character);
