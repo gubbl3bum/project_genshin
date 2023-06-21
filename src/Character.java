@@ -98,7 +98,7 @@ public class Character {
                 "%, critDamage=" + critDamage +
                 "%, quality=" + quality +
                 ", elementalDamageBonus=" + elementalDamageBonus +
-                "&}";
+                "%}";
     }
     // metoda do eksportu postaci do wiersza w pliku CSV
     public String toCsvRow() {

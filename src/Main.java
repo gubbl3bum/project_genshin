@@ -1,8 +1,17 @@
 import java.sql.Connection;
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+
+import static java.lang.Integer.parseInt;
+
 public class Main {
     public static void main(String[] args){
         System.out.println("---------- GENSHIN DATABASE PROJECT ----------");
@@ -21,6 +30,13 @@ public class Main {
     public static Double inputDouble(){
         Scanner scanner = new Scanner(System.in);
         return scanner.nextDouble();
+    }
+    public static LocalDate inputDate(){
+        Scanner scanner = new Scanner(System.in);
+        String dateDtring = scanner.next();
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(dateDtring, dateFormat);
+        return date;
     }
     public static List<Banner> bannerImportDatabase(){
         final String login = "gubbl";
@@ -96,40 +112,43 @@ public class Main {
         System.out.println("3. Add new character");
         System.out.println("4. Display all banners");
         System.out.println("5. Current banner");
-        System.out.println("6. Add new banner");
-        System.out.println("7. Import/export characters from/to csv file");
-        System.out.println("8. Import/export banners from/to csv file");
-        System.out.println("9. Exit ");
+        System.out.println("6. Search banners by character");
+        System.out.println("7. Add new banner");
+        System.out.println("8. Import/export characters from/to csv file");
+        System.out.println("9. Import/export banners from/to csv file");
+        System.out.println("10. Exit ");
         System.out.print("\nplease put your input: ");
-        int option = inputInt();
+        String option = inputString();
         System.out.println(" ");
         while(true){
             switch(option){
-                case 1:
+                case "1":
                     displayCharacter(banners,characters);
                     break;
-                case 2:
+                case "2":
                     displayCharcterStats(banners,characters);
                     break;
-                case 3:
+                case "3":
                     addCharacter(banners,characters);
                     break;
-                case 4:
+                case "4":
                     displayBanner(banners,characters);
                     break;
-                case 5:
+                case "5":
                     currentBanner(banners,characters);
                     break;
-                case 6:
+                case "6":
+                    searchBanners(banners,characters);
+                case "7":
                     addBanner(banners,characters);
                     break;
-                case 7:
+                case "8":
                     importExportCharacter(banners,characters);
                     break;
-                case 8:
+                case "9":
                     importExportBanner(banners,characters);
                     break;
-                case 9:
+                case "10":
                     System.out.println("Exit the program");
                     System.exit(0); //wymuszenie zamkniecia konsoli
                 default:
@@ -139,6 +158,7 @@ public class Main {
         }
     }
     public static void displayCharacter(List<Banner> banners, List<Character> characters){
+        System.out.println("Displaying all characters: ");
         for(Character search : characters){
             System.out.println(search.toString());
         }
@@ -148,9 +168,9 @@ public class Main {
     }
     public static void displayCharcterStats(List<Banner> banners, List<Character> characters){
         System.out.print("Give character name: ");
-        String nameCharac = inputString();
+        String name = inputString();
         for (Character search : characters){
-            if(search.getName().equals(nameCharac)){
+            if(search.getName().equals(name)){
                 System.out.println(search.toString());
                 break;
             }
@@ -160,31 +180,129 @@ public class Main {
         displayMenu(banners,characters);
     }
     public static void addCharacter(List<Banner> banners, List<Character> characters){
-        Character character = new Character("test","test", "test", "test","test","test",123,123,123,123,123,5,123);
         System.out.println("Adding new character...");
         System.out.print("Name: ");
         String name = inputString();
         for (Character search : characters){
             if(search.getName().equals(name)){
                 System.out.println("Character already in database! \nExiting to menu...");
-                break;
+                String exit = inputString();
+                displayMenu(banners,characters);
             }
         }
-        sout
+        System.out.print("Element: ");
+        String element = inputString();
+        System.out.print("Region: ");
+        String region = inputString();
+        System.out.print("Sex: ");
+        String sex = inputString();
+        System.out.print("Age: ");
+        String age = inputString();
+        System.out.print("Weapon: ");
+        String weapon = inputString();
+        System.out.print("Health: ");
+        int health = inputInt();
+        System.out.print("Attack: ");
+        int attack = inputInt();
+        System.out.print("Defense: ");
+        int defense = inputInt();
+        System.out.print("Crit rate: ");
+        double critRate = inputDouble();
+        System.out.print("Crit damage: ");
+        double critDmg = inputDouble();
+        System.out.print("Quality(4 or5): ");
+        int quality = inputInt();
+        System.out.print("Elemental damage bonus: ");
+        double elDmgB = inputDouble();
+        Character newCharater = new Character(name,element,region,sex,age, weapon,health,attack,defense,critRate,critDmg,quality,elDmgB);
+        characters.add(newCharater);
 
+        final String login = "gubbl";
+        final String pswd = "";
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test",login,pswd);
+            String query = "INSERT INTO `characters` (`name`, `element`, `region`, `sex`, `age`, `weapon`, `health`," +
+            "`attack`, `defense`, `critRate`, `critDamage`, `quality`, `elemenDmgBonus`, `id`) VALUES" +
+                    "('"+name+"', '"+ element+"', '"+region+"', '"+sex+"', '"+age+"', '"+weapon+"', '"+health+"', '"+attack+
+                    "', '"+defense+"', '"+critRate+"', '"+critDmg+"', '"+quality+"', '"+elDmgB+"', NULL);";
 
-
+            Statement stmt = con.createStatement();
+            stmt.executeUpdate(query);
+            System.out.println("Sucesfully added character to database!");
+            con.close();
+        } catch (Exception e){
+            System.out.println(e);
+        }
         System.out.println("\nclick any button to go back to menu:");
         String exit = inputString();
         displayMenu(banners,characters);
     }
     public static void displayBanner(List<Banner> banners, List<Character> characters){
 
+        for(Banner search : banners){
+            System.out.println(search.toString());
+        }
+        System.out.println("\nclick any button to go back to menu:");
+        String exit = inputString();
+        displayMenu(banners,characters);
     }
     public static void currentBanner(List<Banner> banners, List<Character> characters){
-
+        System.out.println("Current banner: ");
+        Date currentDate = new Date();
+        for(Banner search : banners){
+            if(currentDate.after(search.getDateStart()) && currentDate.before(search.getDateEnd())){
+                System.out.println(search.toString());
+            }
+        }
+        System.out.println("\nclick any button to go back to menu:");
+        String exit = inputString();
+        displayMenu(banners,characters);
+    }
+    public static void searchBanners(List<Banner> banners, List<Character> characters){
+        System.out.println("Searching banners by character...");
+        System.out.print("Give characater name: ");
+        String name = inputString();
+        for (Banner search : banners){
+            if(search.getCharacter5().equals(name) || search.getCharacter4_1().equals(name) || search.getCharacter4_2().equals(name)
+                    || search.getCharacter4_3().equals(name)){
+                System.out.println(search.toString());
+            }
+        }
+        System.out.println("\nclick any button to go back to menu:");
+        String exit = inputString();
+        displayMenu(banners,characters);
     }
     public static void addBanner(List<Banner> banners, List<Character> characters){
+        System.out.println("Adding banner...");
+        System.out.print("Version: ");
+        String version = inputString();
+        int i = 0; // określa liczbe banerów na wersje, nie więcej niż 4!!
+        for (Banner search : banners){
+            if(search.getVersion().equals(version)) i++;
+        }
+        if(i == 4){
+            System.out.println("Too many banners for that version! \nExiting to menu...");
+            String exit = inputString();
+            displayMenu(banners,characters);
+        }else{
+            System.out.print("Name: ");
+            String name = inputString();
+            System.out.print("Date start:");
+            LocalDate dateStart = inputDate();
+            System.out.print("Date end: ");
+            LocalDate dateEnd = inputDate();
+            System.out.print("Character 5*: ");
+            String character5 = inputString();
+            for (Character search : characters){
+                if(search.getName().equals(character5) && search.getQuality() != 5){
+                    System.out.print("Selected character is invalid (wrong quality), please try again");
+                    break;
+                }
+            }
+
+        }
+
 
     }
     public static void importExportCharacter(List<Banner> banners, List<Character> characters){
@@ -193,5 +311,4 @@ public class Main {
     public static void importExportBanner(List<Banner> banners, List<Character> characters){
 
     }
-
 }
