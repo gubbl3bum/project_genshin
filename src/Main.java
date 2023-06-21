@@ -2,10 +2,10 @@ import java.awt.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.Date;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args){
         System.out.println("---------- GENSHIN DATABASE PROJECT ----------");
@@ -20,10 +20,6 @@ public class Main {
     public static String inputString(){
         Scanner scanner = new Scanner(System.in);
         return scanner.nextLine();
-    }
-    public static Double inputDouble(){
-        Scanner scanner = new Scanner(System.in);
-        return scanner.nextDouble();
     }
     public static LocalDate inputDate(){
         Scanner scanner = new Scanner(System.in);
@@ -99,18 +95,26 @@ public class Main {
         }
         return character;
     }
+    public static void goToMenu(String input,List<Banner> banners, List<Character> characters){
+        if(input.equals("-")){
+            System.out.print("Exiting to menu...\nclick any button...");
+            inputString();
+            displayMenu(banners, characters);
+        }   }
     public static void displayMenu(List<Banner> banners, List<Character> characters){
-        System.out.println("---------- MENU ----------");
+        System.out.println("\n-------------------- MENU --------------------");
+        System.out.println("!To return to menu while in input mode, please input '-'!");
         System.out.println("1. Display all characters");
         System.out.println("2. Display character stats");
         System.out.println("3. Add new character");
-        System.out.println("4. Display all banners");
-        System.out.println("5. Current banner");
-        System.out.println("6. Search banners by character");
-        System.out.println("7. Add new banner");
-        System.out.println("8. Import/export characters from/to csv file");
-        System.out.println("9. Import/export banners from/to csv file");
-        System.out.println("10. Exit ");
+        System.out.println("4. Search character by criteria");
+        System.out.println("5. Display all banners");
+        System.out.println("6. Current banner");
+        System.out.println("7. Search banners by character");
+        System.out.println("8. Add new banner");
+        System.out.println("9. Import/export characters from/to csv file");
+        System.out.println("10. Import/export banners from/to csv file");
+        System.out.println("11. Exit ");
         System.out.print("\nplease put your input: ");
         String option = inputString();
         System.out.println(" ");
@@ -120,47 +124,48 @@ public class Main {
                     displayCharacter(banners,characters);
                     break;
                 case "2":
-                    displayCharcterStats(banners,characters);
+                    displayCharacterStats(banners,characters);
                     break;
                 case "3":
                     addCharacter(banners,characters);
                     break;
                 case "4":
-                    displayBanner(banners,characters);
+                    searchCharacters(banners,characters);
                     break;
                 case "5":
-                    currentBanner(banners,characters);
+                    displayBanner(banners,characters);
                     break;
                 case "6":
-                    searchBanners(banners,characters);
+                    currentBanner(banners,characters);
+                    break;
                 case "7":
+                    searchBanners(banners,characters);
+                case "8":
                     addBanner(banners,characters);
                     break;
-                case "8":
+                case "9":
                     importExportCharacter(banners,characters);
                     break;
-                case "9":
+                case "10":
                     importExportBanner(banners,characters);
                     break;
-                case "10":
+                case "11":
                     System.out.println("Exit the program");
                     System.exit(0); //wymuszenie zamkniecia konsoli
                 default:
                     System.out.println("Wrong option - try again");
                     displayMenu(banners, characters);
-            }
-        }
-    }
+            }   }   }
     public static void displayCharacter(List<Banner> banners, List<Character> characters){
         System.out.println("Displaying all characters: ");
         for(Character search : characters){
             System.out.println(search.toString());
         }
-        System.out.println("\nclick any button to go back to menu:");
+        System.out.print("\nclick any button to go back to menu:");
         String exit = inputString();
         displayMenu(banners,characters);
     }
-    public static void displayCharcterStats(List<Banner> banners, List<Character> characters){
+    public static void displayCharacterStats(List<Banner> banners, List<Character> characters){
         System.out.print("Give character name: ");
         String name = inputString();
         boolean charFound = false;
@@ -174,73 +179,269 @@ public class Main {
         if(!charFound){
             System.out.println("Character not found in database.");
         }
-        System.out.println("\nclick any button to go back to menu:");
+        System.out.print("\nclick any button to go back to menu:");
         String exit = inputString();
         displayMenu(banners,characters);
     }
-    public static void addCharacter(List<Banner> banners, List<Character> characters){
+    public static void addCharacter(List<Banner> banners, List<Character> characters) {
         System.out.println("Adding new character...");
-        System.out.print("Name: ");
-        String name = inputString();
-        for (Character search : characters){
-            if(search.getName().equals(name)){
-                System.out.println("Character already in database! \nExiting to menu...");
-                String exit = inputString();
-                displayMenu(banners,characters);
+        boolean valid = false;
+        String name = "";
+        while (!valid) {
+            System.out.print("Name: ");
+            name = inputString();
+            goToMenu(name,banners,characters);
+            for (Character search : characters) {
+                if (!search.getName().equals(name)) {
+                    valid = true;
+                } else {
+                    System.out.print("Character already in database! try again!\n");
+                    valid = false;
+                    break;
+                }   }   }
+        String element = validElement(banners,characters);
+        String region = validRegion(banners,characters);
+        String sex = validSex(banners,characters);
+        String age = validAge(banners, characters);
+        String weapon = validWeapon(banners,characters);
+        int health = validInt(banners, characters, 1);
+        int attack = validInt(banners,characters,2);
+        int defense = validInt(banners,characters,3);
+        double critRate = validDouble(banners,characters,1);
+        double critDmg = validDouble(banners,characters,2);
+        String qualityS = "";
+        int quality = 0;
+        valid = false;
+        while (!valid) {
+            System.out.print("Quality(4 or5): ");
+            qualityS = inputString();
+            goToMenu(qualityS,banners,characters);
+            try {
+                quality = Integer.parseInt(qualityS);
+                if (quality == 4 || quality == 5) {
+                    valid = true;
+                } else {
+                    System.out.println("Wrong quality! please try again\n(4 or 5)");
+                    valid = false;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Wrong quality! please try again\n(4 or 5)");
+                valid = false;
             }   }
-        System.out.print("Element: ");
-        String element = inputString();
-        System.out.print("Region: ");
-        String region = inputString();
-        System.out.print("Sex: ");
-        String sex = inputString();
-        System.out.print("Age: ");
-        String age = inputString();
-        System.out.print("Weapon: ");
-        String weapon = inputString();
-        System.out.print("Health: ");
-        int health = inputInt();
-        System.out.print("Attack: ");
-        int attack = inputInt();
-        System.out.print("Defense: ");
-        int defense = inputInt();
-        System.out.print("Crit rate: ");
-        double critRate = inputDouble();
-        System.out.print("Crit damage: ");
-        double critDmg = inputDouble();
-        System.out.print("Quality(4 or5): ");
-        int quality = inputInt();
-        System.out.print("Elemental damage bonus: ");
-        double elDmgB = inputDouble();
-        Character newCharater = new Character(name,element,region,sex,age, weapon,health,attack,defense,critRate,critDmg,quality,elDmgB);
+        double elDmgB = validDouble(banners,characters,3);
+        Character newCharater = new Character(name, element, region, sex, age, weapon, health, attack, defense, critRate, critDmg, quality, elDmgB);
         characters.add(newCharater);
         //dodawanie postaci do bazy danych
         final String login = "gubbl";
         final String pswd = "";
-        try{
+        try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test",login,pswd);
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test", login, pswd);
             String query = "INSERT INTO `characters` (`name`, `element`, `region`, `sex`, `age`, `weapon`, `health`," +
-            "`attack`, `defense`, `critRate`, `critDamage`, `quality`, `elemenDmgBonus`, `id`) VALUES" +
-                    "('"+name+"', '"+ element+"', '"+region+"', '"+sex+"', '"+age+"', '"+weapon+"', '"+health+"', '"+attack+
-                    "', '"+defense+"', '"+critRate+"', '"+critDmg+"', '"+quality+"', '"+elDmgB+"', NULL);";
+                    "`attack`, `defense`, `critRate`, `critDamage`, `quality`, `elemenDmgBonus`, `id`) VALUES" +
+                    "('" + name + "', '" + element + "', '" + region + "', '" + sex + "', '" + age + "', '" + weapon + "', '" + health + "', '" + attack +
+                    "', '" + defense + "', '" + critRate + "', '" + critDmg + "', '" + quality + "', '" + elDmgB + "', NULL);";
             Statement stmt = con.createStatement();
             stmt.executeUpdate(query);
             System.out.println("Sucesfully added character to database!");
             con.close();
-            } catch (Exception e){
-                System.out.println(e);
-            }
-        System.out.println("\nclick any button to go back to menu:");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        System.out.print("\nclick any button to go back to menu:");
         String exit = inputString();
+        displayMenu(banners, characters);
+    }
+    public static String validElement(List<Banner> banners,List<Character> characters){
+        String element = "";
+        boolean valid = false;
+        while (!valid) {
+            System.out.print("Element: ");
+            element = inputString();
+            goToMenu(element,banners,characters);
+            if (element.equals("Anemo") || element.equals("Geo") || element.equals("Electro")
+                    || element.equals("Dendro") || element.equals("Hydro") || element.equals("Pyro")
+                    || element.equals("Cryo")) {
+                valid = true;
+            } else {
+                System.out.println("Wrong element! please try again\n(Anemo, Geo, Electro, Dendro, Hydro, Pyro, Cryo)");
+            }   }
+        return element;
+    }
+    public static String validRegion(List<Banner> banners, List<Character> characters){
+        boolean valid = false;
+        String region = "";
+        while (!valid) {
+            System.out.print("Region: ");
+            region = inputString();
+            goToMenu(region,banners,characters);
+            if (region.equals("Mondstadt") || region.equals("Liyue") || region.equals("Inazuma") || region.equals("Sumeru")
+                    || region.equals("Fontaine") || region.equals("Natlan") || region.equals("Snezhnaya")) {
+                valid = true;
+            } else {
+                System.out.println("Wrong region! please try again\n(Mondstadt, Liyue, Inazuma, Sumeru, Fontaine, Natlan, Snezhnaya)");
+            }   }
+        return region;
+    }
+    public static String validSex(List<Banner> banners, List<Character> characters){
+        String sex = "";
+        boolean valid = false;
+        while (!valid) {
+            System.out.print("Sex: ");
+            sex = inputString();
+            goToMenu(sex,banners,characters);
+            if (sex.equals("Male") || sex.equals("Female")) {
+                valid = true;
+            } else {
+                System.out.println("Wrong sex! please try again\n(Male, Female)");
+            }   }
+    return sex;}
+    public static String validAge(List<Banner> banners, List<Character> characters){
+        boolean valid = false;
+        String age = "";
+        while (!valid) {
+            System.out.print("Age: ");
+            age = inputString();
+            goToMenu(age,banners,characters);
+            if (age.equals("Child") || age.equals("Teenager") || age.equals("Adult")) {
+                valid = true;
+            } else {
+                System.out.println("Wrong age! please try again\n(Child, Teenager, Adult)");
+            }   }
+    return age;}
+    public static String validWeapon(List<Banner> banners, List<Character> characters){
+        boolean valid = false;
+        String weapon = "";
+        while (!valid) {
+            System.out.print("Weapon: ");
+            weapon = inputString();
+            goToMenu(weapon,banners,characters);
+            if (weapon.equals("Sword") || weapon.equals("Claymore") || weapon.equals("Polearm") || weapon.equals("Catalyst") || weapon.equals("Bow")) {
+                valid = true;
+            } else {
+                System.out.println("Wrong weapon! please try again\n(Sword, Claymore, Polearm, Catalyst, Bow)");
+            }   }
+    return weapon;}
+    public static int validInt(List<Banner> banners, List<Character> characters, int type){
+        String inputS= "";
+        int inputInt = 0;
+        boolean valid = false;
+        while (!valid) {
+            switch(type){
+                case 1:
+                    System.out.print("Health: ");
+                    break;
+                case 2:
+                    System.out.print("Attack: ");
+                    break;
+                case 3:
+                    System.out.print("Defense: ");
+                    break;}
+            inputS = inputString();
+            goToMenu(inputS,banners,characters);
+            try {
+                inputInt = Integer.parseInt(inputS);
+                if (inputInt < 0) {
+                    System.out.print("Wrong input! please try again\n(positive number)\n");
+                    valid = false;
+                } else valid = true;
+            } catch (NumberFormatException e) {
+                System.out.println("Wrong input! please try again\n(integer)");
+                valid = false;
+            }   }
+        return inputInt;
+    }
+    public static double validDouble(List<Banner> banners, List<Character> characters, int type){
+            String inputS= "";
+            double inputDouble = 0;
+            boolean valid = false;
+            while (!valid) {
+                switch(type){
+                    case 1:
+                        System.out.print("Crit rate: ");
+                        break;
+                    case 2:
+                        System.out.print("Crit damage: ");
+                        break;
+                    case 3:
+                        System.out.print("Elemental damage bonus: ");
+                        break;}
+                inputS = inputString();
+                goToMenu(inputS,banners,characters);
+                try {
+                    inputDouble = Double.parseDouble(inputS);
+                    if (inputDouble < 0) {
+                        System.out.print("Wrong input! please try again\n(positive number)\n");
+                        valid = false;
+                    } else valid = true;
+                } catch (NumberFormatException e) {
+                    System.out.println("Wrong input! please try again\n(double)");
+                    valid = false;
+                }   }
+            return inputDouble;
+    }
+    public static void searchCharacters(List<Banner> banners, List<Character> characters){
+        System.out.println("Search characters by:");
+        System.out.println("1. Element");
+        System.out.println("2. Region");
+        System.out.println("3. Sex");
+        System.out.println("4. Age");
+        System.out.println("5. Weapon");
+        System.out.print("\nplease put your input: ");
+        String input = inputString();
+        goToMenu(input, banners, characters);
+        switch(input){
+            case "1":
+                searchElement(banners,characters);
+                break;
+            case "2":
+                searchRegion(banners,characters);
+                break;
+            case "3":
+                searchSex(banners, characters);
+                break;
+            case "4":
+                searchAge(banners,characters);
+                break;
+            case "5":
+                searchWeapon(banners,characters);
+                break;
+            default:
+                System.out.println("Wrong option - try again");
+                searchCharacters(banners,characters);
+        }   }
+    public static void searchElement(List<Banner> banners, List<Character> characters){
+        System.out.println("\nSearching by element...");
+        String element = validElement(banners,characters);
+        int count = 0;
+        for(Character search : characters){
+            if(element.equals(search.getElement())){
+                System.out.println(search.toString());
+                count++;
+            }   }
+        System.out.println("Printed " + count + " characters");
+        System.out.println("\nClick any button to go to menu...");
+        inputString();
         displayMenu(banners,characters);
+    }
+    public static void searchRegion(List<Banner> banners, List<Character> characters){
+
+    }
+    public static void searchSex(List<Banner> banners, List<Character> characters){
+
+    }
+    public static void searchAge(List<Banner> banners, List<Character> characters){
+
+    }
+    public static void searchWeapon(List<Banner> banners, List<Character> characters){
+
     }
     public static void displayBanner(List<Banner> banners, List<Character> characters){
         System.out.println("Displaying all banners...");
         for(Banner search : banners){
             System.out.println(search.toString());
         }
-        System.out.println("\nclick any button to go back to menu:");
+        System.out.print("\nclick any button to go back to menu:");
         String exit = inputString();
         displayMenu(banners,characters);
     }
@@ -251,7 +452,7 @@ public class Main {
             if(currentDate.after(search.getDateStart()) && currentDate.before(search.getDateEnd())){
                 System.out.println(search.toString());
             }   }
-        System.out.println("\nclick any button to go back to menu:");
+        System.out.print("\nclick any button to go back to menu:");
         String exit = inputString();
         displayMenu(banners,characters);
     }
@@ -265,7 +466,7 @@ public class Main {
                 System.out.println(search.toString());
             }
         }
-        System.out.println("\nclick any button to go back to menu:");
+        System.out.print("\nclick any button to go back to menu:");
         String exit = inputString();
         displayMenu(banners,characters);
     }
@@ -384,7 +585,10 @@ public class Main {
             con.close();
         } catch (Exception e){
             System.out.println(e);
-        }   }   }
+        }   }
+        System.out.print("\nclick any button to go back to menu:");
+        String exit = inputString();
+        displayMenu(banners,characters);}
     public static void importExportCharacter(List<Banner> banners, List<Character> characters){
 
     }
