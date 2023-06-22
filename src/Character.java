@@ -125,5 +125,4 @@ public class Character {
         int quality = Integer.parseInt(data[11]);
         double elementalDmgBonus = Double.parseDouble(data[12]);
         return new Character(name, element, region, gender, age, weapon, health, attack, defense, critRate, critDamage, quality, elementalDmgBonus);
-    }
-}
+    }   }

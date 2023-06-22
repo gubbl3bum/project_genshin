@@ -1,6 +1,7 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -192,17 +193,123 @@ public class DataBase implements DataBase_operations {
     @Override
     public void searchBanners() {
         System.out.println("Searching banners by character...");
-        System.out.print("Give characater name: ");
-        String name = scanner.nextLine();
-        for (Banner search : banners){
-            if(search.getCharacter5().equals(name) || search.getCharacter4_1().equals(name) || search.getCharacter4_2().equals(name)
-                    || search.getCharacter4_3().equals(name)){
-                System.out.println(search.toString());
+        int prints = 0;
+        boolean valid = false;
+        while(!valid){
+            System.out.print("Give characater name: ");
+            String name = scanner.nextLine();
+                for (Banner search : banners){
+                    if(search.getCharacter5().equals(name) || search.getCharacter4_1().equals(name) || search.getCharacter4_2().equals(name)
+                        || search.getCharacter4_3().equals(name)){
+                    System.out.println(search.toString());
+                    prints++;
+                    valid = true;
+                }   }
+            if(prints <= 0){
+                System.out.println("Character not found in database! please try again\n");
+                valid = false;
             }   }   }
     @Override
     public void addBanner() {
+        System.out.println("Adding banner...");
+        System.out.print("Version: ");
+        String version = scanner.nextLine();
+        int i = 0; // określa liczbe banerów na wersje, nie więcej niż 4!!
+        for (Banner search : banners) {
+            if (search.getVersion().equals(version)) i++;
+        }
+        if (i == 4) {
+            System.out.println("Too many banners for that version! \nExiting to menu...");
 
-    }
+        } else {
+            System.out.print("Name: ");
+            String name = scanner.nextLine();
+            System.out.print("Date start:");
+            LocalDate dateStart = Valid.validDate();
+            System.out.print("Date end: ");
+            LocalDate dateEnd = Valid.validDate();
+            boolean validChar = false;
+            String character5 = "";
+            int char5 = 0;
+            while(!validChar){
+            System.out.print("5* character: ");
+            character5 = scanner.nextLine();
+            for (Character search : characters) {
+                if (search.getName().equals(character5) && search.getQuality() == 5) {
+                    validChar = true;
+                    char5 = search.getId();
+                    break;
+                }   }
+            if(!validChar){
+                System.out.println("Selected character is invalid, please try again");
+            }   }
+            validChar = false;
+            String character4_1 = "";
+            int char4_1 = 0;
+            while(!validChar){
+                System.out.print("4* first character: ");
+                character4_1 = scanner.nextLine();
+                for(Character search : characters){
+                    if(search.getName().equals(character4_1) && search.getQuality() == 4){
+                        char4_1 = search.getId();
+                        validChar = true;
+                        break;  }
+                } if(!validChar){
+                    System.out.println("Selected character is invalid , please try again");
+                }   }
+            validChar = false;
+            String character4_2 = "";
+            int char4_2 = 0;
+            while(!validChar){
+                System.out.print("4* second character: ");
+                character4_2 = scanner.nextLine();
+                for(Character search : characters){
+                    if(search.getName().equals(character4_2) && search.getQuality() == 4){
+                        if(character4_2.equals(character4_1)){
+                            System.out.println("Character already in banner, please try again");
+                            break;
+                        }else{
+                            char4_2 = search.getId();
+                            validChar = true;
+                            break;} }
+                } if(!validChar) {
+                    System.out.println("Selected character is invalid, please try again");
+                }   }
+        validChar = false;
+        String character4_3 = "";
+        int char4_3 = 0;
+        while(!validChar){
+            System.out.print("4* third character: ");
+            character4_3 = scanner.nextLine();
+            for(Character search : characters){
+                if(search.getName().equals(character4_3) && search.getQuality() == 4){
+                    if(character4_3.equals(character4_2) || character4_3.equals(character4_1)){
+                        System.out.println("Character already in banner, please try again");
+                        break;
+                    }else{
+                        validChar = true;
+                        char4_3 = search.getId();
+                        break;} }
+            } if(!validChar) {
+                System.out.println("Selected character is invalid, please try again");
+            }   }
+        //dodanie baneru do bazy danych
+        final String login = "gubbl";
+        final String pswd = "";
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test",login,pswd);
+            Statement stmt = con.createStatement();
+            String query = "INSERT INTO `banner` (`idBanner`, `name`, `dateStart`, `dateEnd`, `character5`, `character4_1`, " +
+                    "`character4_2`, `character4_3`, `version`) VALUES " +
+                    "(NULL, '"+name+"', '"+dateStart+"', '"+dateEnd+"', '"+char5+"', '"+char4_1+"', '"+char4_2+"', " +
+                    "'"+char4_3+"', '"+version+"')";
+            stmt.executeUpdate(query);
+            System.out.println("Sucesfully added banner to database!");
+            con.close();
+        } catch (Exception e){
+            System.out.println(e);
+        }   }   }
     @Override
     public void importExportCharacter() {
 
