@@ -5,9 +5,9 @@ public class DataBase implements DataBase_operations {
     private static List<Character> characters;
     private static List<Banner> banners;
     Scanner scanner = new Scanner(System.in);
-    public DataBase(){
-        characters = new ArrayList<>();
-        banners = new ArrayList<>();
+    public DataBase(List<Banner> banners,List<Character> characters){
+        this.characters = characters;
+        this.banners = banners;
     }
     @Override
     public void addCharacter() {

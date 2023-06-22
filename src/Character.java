@@ -88,7 +88,7 @@ public class Character {
                 "name='" + name + '\'' +
                 ", element='" + element + '\'' +
                 ", region='" + region + '\'' +
-                ", sex='" + sex + '\'' +
+                ", gender='" + sex + '\'' +
                 ", age='" + age + '\'' +
                 ", weapon='" + weapon + '\'' +
                 ", health=" + health +

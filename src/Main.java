@@ -1,16 +1,15 @@
-import java.awt.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.Date;
 import java.util.List;
-
 public class Main {
     public static void main(String[] args){
         System.out.println("---------- GENSHIN DATABASE PROJECT ----------");
         List<Banner> banners = bannerImportDatabase();
         List<Character> characters = characterImportDatabase();
+
         displayMenu(banners,characters);
     }
     public static int inputInt(){
@@ -166,19 +165,19 @@ public class Main {
         displayMenu(banners,characters);
     }
     public static void displayCharacterStats(List<Banner> banners, List<Character> characters){
-        System.out.print("Give character name: ");
-        String name = inputString();
-        boolean charFound = false;
-        for (Character search : characters){
-            if(search.getName().equals(name)){
-                System.out.println(search.toString());
-                charFound = true;
-                break;
+        boolean valid = false;
+        while (!valid) {
+            System.out.print("Give character name: ");
+            String name = inputString();
+            goToMenu(name,banners,characters);
+            for (Character search : characters) {
+                if (search.getName().equals(name)) {
+                    System.out.println(search.toString());
+                    valid = true;}
             }
-        }
-        if(!charFound){
-            System.out.println("Character not found in database.");
-        }
+            if(!valid){
+                System.out.print("Character not found in database! try again\n");
+            }   }
         System.out.print("\nclick any button to go back to menu:");
         String exit = inputString();
         displayMenu(banners,characters);
@@ -425,16 +424,60 @@ public class Main {
         displayMenu(banners,characters);
     }
     public static void searchRegion(List<Banner> banners, List<Character> characters){
-
+        System.out.println("\nSearching by region...");
+        String region = validRegion(banners,characters);
+        int count = 0;
+        for(Character search : characters){
+            if(region.equals(search.getRegion())){
+                System.out.println(search.toString());
+                count++;
+            }   }
+        System.out.println("Printed " + count + " characters");
+        System.out.println("\nClick any button to go to menu...");
+        inputString();
+        displayMenu(banners,characters);
     }
     public static void searchSex(List<Banner> banners, List<Character> characters){
-
+        System.out.println("\nSearching by gender...");
+        String gender = validSex(banners,characters);
+        int count = 0;
+        for(Character search : characters){
+            if(gender.equals(search.getSex())){
+                System.out.println(search.toString());
+                count++;
+            }   }
+        System.out.println("Printed " + count + " characters");
+        System.out.println("\nClick any button to go to menu...");
+        inputString();
+        displayMenu(banners,characters);
     }
     public static void searchAge(List<Banner> banners, List<Character> characters){
-
+        System.out.println("\nSearching by age...");
+        String age = validAge(banners,characters);
+        int count = 0;
+        for(Character search : characters){
+            if(age.equals(search.getAge())){
+                System.out.println(search.toString());
+                count++;
+            }   }
+        System.out.println("Printed " + count + " characters");
+        System.out.println("\nClick any button to go to menu...");
+        inputString();
+        displayMenu(banners,characters);
     }
     public static void searchWeapon(List<Banner> banners, List<Character> characters){
-
+        System.out.println("\nSearching by weapon...");
+        String gender = validWeapon(banners,characters);
+        int count = 0;
+        for(Character search : characters){
+            if(gender.equals(search.getSex())){
+                System.out.println(search.toString());
+                count++;
+            }   }
+        System.out.println("Printed " + count + " characters");
+        System.out.println("\nClick any button to go to menu...");
+        inputString();
+        displayMenu(banners,characters);
     }
     public static void displayBanner(List<Banner> banners, List<Character> characters){
         System.out.println("Displaying all banners...");
@@ -464,8 +507,7 @@ public class Main {
             if(search.getCharacter5().equals(name) || search.getCharacter4_1().equals(name) || search.getCharacter4_2().equals(name)
                     || search.getCharacter4_3().equals(name)){
                 System.out.println(search.toString());
-            }
-        }
+            }   }
         System.out.print("\nclick any button to go back to menu:");
         String exit = inputString();
         displayMenu(banners,characters);
