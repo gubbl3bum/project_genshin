@@ -2,7 +2,7 @@ public class Character {
     private String name;
     private String element;
     private String region;
-    private String sex;
+    private String gender;
     private String age;
     private String weapon;
     private int health;
@@ -12,12 +12,13 @@ public class Character {
     private double critDamage;
     private int quality;
     private double elementalDamageBonus;
+    private int id;
     //konstruktor
-    public Character(String name, String element, String region, String sex, String age, String weapon, int health, int attack, int defense, double critRate, double critDamage, int quality, double elementalDamageBonus) {
+    public Character(String name, String element, String region, String gender, String age, String weapon, int health, int attack, int defense, double critRate, double critDamage, int quality, double elementalDamageBonus) {
             this.name = name;
             this.element = element;
             this.region = region;
-            this.sex = sex;
+            this.gender = gender;
             this.age = age;
             this.weapon = weapon;
             this.health = health;
@@ -41,10 +42,10 @@ public class Character {
         return region;    }
     public void setRegion(String region) {
         this.region = region;    }
-    public String getSex() {
-        return sex;    }
-    public void setSex(String sex) {
-        this.sex = sex;    }
+    public String getGender() {
+        return gender;    }
+    public void setGender(String gender) {
+        this.gender = gender;    }
     public String getAge() {
         return age;    }
     public void setAge(String age) {
@@ -81,6 +82,8 @@ public class Character {
         return elementalDamageBonus;    }
     public void setElementalDamageBonus(double elementalDamageBonus) {
         this.elementalDamageBonus = elementalDamageBonus;   }
+    public int getId(){
+        return id;  }
 //wygenerowany toString()
     @Override
     public String toString() {
@@ -88,7 +91,7 @@ public class Character {
                 "name='" + name + '\'' +
                 ", element='" + element + '\'' +
                 ", region='" + region + '\'' +
-                ", gender='" + sex + '\'' +
+                ", gender='" + gender + '\'' +
                 ", age='" + age + '\'' +
                 ", weapon='" + weapon + '\'' +
                 ", health=" + health +
@@ -102,7 +105,7 @@ public class Character {
     }
     // metoda do eksportu postaci do wiersza w pliku CSV
     public String toCsvRow() {
-        return name + "," + element + "," + region + "," + sex + "," + age + "," +
+        return name + "," + element + "," + region + "," + gender + "," + age + "," +
                 weapon + "," + health + "," + attack + "," + defense + "," + critRate + "," + critDamage + "," + quality + "," + elementalDamageBonus;
     }
     // metoda do tworzenia postaci z wiersza w pliku CSV
@@ -111,7 +114,7 @@ public class Character {
         String name = data[0];
         String element = data[1];
         String region = data[2];
-        String sex = data[3];
+        String gender = data[3];
         String age = data[4];
         String weapon = data[5];
         int health = Integer.parseInt(data[6]);
@@ -121,6 +124,6 @@ public class Character {
         double critDamage = Double.parseDouble(data[10]);
         int quality = Integer.parseInt(data[11]);
         double elementalDmgBonus = Double.parseDouble(data[12]);
-        return new Character(name, element, region, sex, age, weapon, health, attack, defense, critRate, critDamage, quality, elementalDmgBonus);
+        return new Character(name, element, region, gender, age, weapon, health, attack, defense, critRate, critDamage, quality, elementalDmgBonus);
     }
 }
