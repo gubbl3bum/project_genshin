@@ -1,7 +1,14 @@
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
+
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -32,10 +39,10 @@ public class Valid {
                 int health = rs.getInt(7);
                 int attack = rs.getInt(8);
                 int defense = rs.getInt(9);
-                Double critRate = rs.getDouble(10);
-                Double critDmg = rs.getDouble(11);
+                double critRate = rs.getDouble(10);
+                double critDmg = rs.getDouble(11);
                 int quality = rs.getInt(12);
-                Double elementalDmgBonus = rs.getDouble(13);
+                double elementalDmgBonus = rs.getDouble(13);
                 Character characters = new Character(name,element,region,gender,age,weapon,health,attack,defense,critRate,critDmg,quality,elementalDmgBonus);
                 character.add(characters);
             }
@@ -79,12 +86,97 @@ public class Valid {
         }
         return banners;
     }
+    //importowanie tabeli characters z pliku CSV
+    public static List<Character> characterImportCSV(){
+        System.out.println("Default path: \\projekt_genshin\\characters.csv");
+        String charactersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\characters.csv";
+        System.out.print("Give your input: ");
+        String input = scanner.nextLine();
+        if(!input.equals("")){
+            charactersPath = input;}
+        List<Character> characters = new ArrayList<>();
+        try{
+            CSVReader characterReader = new CSVReader(new FileReader(charactersPath));
+            List<String[]> characterData = characterReader.readAll();
+            for(String[] row : characterData){
+                String name = row[0];
+                String element = row[1];
+                String region = row[2];
+                String gender = row[3];
+                String age = row[4];
+                String weapon = row[5];
+                int health = Integer.parseInt(row[6]);
+                int attack = Integer.parseInt(row[7]);
+                int defense = Integer.parseInt(row[8]);
+               double critRate = Double.parseDouble(row[9]);
+                double critDmg = Double.parseDouble(row[10]);
+                int quality = Integer.parseInt(row[11]);
+                double elementalDmg = Double.parseDouble(row[12]);
+                Character character = new Character(name,element,region,gender,age,weapon,
+                    health,attack,defense,critRate,critDmg,quality,elementalDmg);
+                characters.add(character);
+        }
+            characterReader.close();
+            System.out.println("Characters loaded from CSV files successfully");
+        } catch (IOException | CsvException e){
+            System.out.println("An error occured while loading data from CSV file.");
+        }
+            return characters;
+    }
+    //importowanie tabeli banners z pliku csv
+    public static List<Banner> bannerImportCSV(){
+        List<Banner> banners = new ArrayList<>();
+        System.out.println("Default path: \\projekt_genshin\\banners.csv");
+        String bannersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\banners.csv";
+        System.out.print("Give file path: ");
+        String input = scanner.nextLine();
+        if(!input.equals("")){
+            bannersPath = input;
+        }
+        try {
+            CSVReader bannerReader = new CSVReader(new FileReader(bannersPath));
+            List<String[]> bannerData = new ArrayList<>();
+            for (String[] row : bannerData) {
+                String name = row[0];
+                Date dateStart = stringToDate(row[1]);
+                Date dateEnd = stringToDate(row[2]);
+                String character5 = row[3];
+                String character4_1 = row[4];
+                String character4_2 = row[5];
+                String character4_3 = row[6];
+                String version = row[7];
+                Banner banner = new Banner(name, dateStart, dateEnd, character5, character4_1, character4_2, character4_3, version);
+                banners.add(banner);
+            }
+            bannerReader.close();
+            System.out.println("Banners loaded from CSV file successfully");
+        }catch (IOException e){
+            System.out.println("Error occurred while loading data from CSV file");
+        }
+            return banners;
+    }
     public static LocalDate validDate(){
         Scanner scanner = new Scanner(System.in);
         String dateDtring = scanner.next();
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse(dateDtring, dateFormat);
         return date;
+    }
+    public static Date stringToDate(String date){
+        Date result = null;
+        try{
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            result = dateFormat.parse(date);
+        } catch(ParseException e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+    public static Date stringToDate(){
+        Scanner scanner = new Scanner(System.in);
+        String dateS = scanner.nextLine();
+        Date result = stringToDate(dateS);
+        return result ;
     }
     public static String validElement(){
         String element = "";
@@ -102,8 +194,10 @@ public class Valid {
                 }
             }else{
                 break;
-            }   }
-        return element;     }
+            }
+        }
+        return element;
+    }
     public static String validRegion(){
         boolean valid = false;
         String region = "";
@@ -116,10 +210,13 @@ public class Valid {
                     valid = true;
                 } else {
                     System.out.println("Wrong region! please try again\n(Mondstadt, Liyue, Inazuma, Sumeru, Fontaine, Natlan, Snezhnaya)");
-                }   }
+                }
+            }
             else{
-                break;  }
-        } return region; }
+                break;
+            }
+        } return region;
+    }
     public static String validGender(){
         String gender = "";
         boolean valid = false;
@@ -131,10 +228,13 @@ public class Valid {
                     valid = true;
                 } else {
                     System.out.println("Wrong sex! please try again\n(Male, Female)");
-                }   }else {
+                }
+            }else {
                 break;
-            }   }
-        return gender;      }
+            }
+        }
+        return gender;
+    }
     public static String validAge(){
         boolean valid = false;
         String age = "";
@@ -146,10 +246,13 @@ public class Valid {
                     valid = true;
                 } else {
                     System.out.println("Wrong age! please try again\n(Child, Teenager, Adult)");
-                }   }else{
+                }
+            }else{
                 break;
-            }   }
-        return age;     }
+            }
+        }
+        return age;
+    }
     public static String validWeapon() {
         boolean valid = false;
         String weapon = "";
@@ -164,7 +267,8 @@ public class Valid {
                 }
             } else {
                 break;
-            }   }
+            }
+        }
         return weapon;      }
     public static int validQuality(){
         String qualityS = "";
@@ -185,7 +289,9 @@ public class Valid {
             } catch (NumberFormatException e) {
                 System.out.println("Wrong quality! please try again\n(4 or 5)");
                 valid = false;
-            }}else break;   }
+            }
+            }else break;
+        }
         return  quality;}
     public static int validInt(int type){
         String inputS= "";
@@ -213,9 +319,11 @@ public class Valid {
             } catch (NumberFormatException e) {
                 System.out.println("Wrong input! please try again\n(integer)");
                 valid = false;
-            }   }else{
+            }
+            }else{
                 break;
-            }   }
+            }
+        }
         return inputInt;       }
     public static double validDouble(int type){
         String inputS= "";
@@ -243,6 +351,8 @@ public class Valid {
             } catch (NumberFormatException e) {
                 System.out.println("Wrong input! please try again\n(double)");
                 valid = false;
-            }   }else break;    }
+            }
+            }else break;
+        }
         return inputDouble;     }
 }

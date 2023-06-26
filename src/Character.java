@@ -103,26 +103,4 @@ public class Character {
                 ", elementalDamageBonus=" + elementalDamageBonus +
                 "%}";
     }
-    // metoda do eksportu postaci do wiersza w pliku CSV
-    public String toCsvRow() {
-        return name + "," + element + "," + region + "," + gender + "," + age + "," +
-                weapon + "," + health + "," + attack + "," + defense + "," + critRate + "," + critDamage + "," + quality + "," + elementalDamageBonus;
-    }
-    // metoda do tworzenia postaci z wiersza w pliku CSV
-    public static Character fromCsvRow(String csvRow) {
-        String[] data = csvRow.split(",");
-        String name = data[0];
-        String element = data[1];
-        String region = data[2];
-        String gender = data[3];
-        String age = data[4];
-        String weapon = data[5];
-        int health = Integer.parseInt(data[6]);
-        int attack = Integer.parseInt(data[7]);
-        int defense = Integer.parseInt(data[8]);
-        double critRate = Double.parseDouble(data[9]);
-        double critDamage = Double.parseDouble(data[10]);
-        int quality = Integer.parseInt(data[11]);
-        double elementalDmgBonus = Double.parseDouble(data[12]);
-        return new Character(name, element, region, gender, age, weapon, health, attack, defense, critRate, critDamage, quality, elementalDmgBonus);
-    }   }
+  }

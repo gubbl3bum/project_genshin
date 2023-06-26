@@ -7,7 +7,6 @@ public interface DataBase_operations {
     void currentBanner();
     void searchBanners();
     void addBanner();
-    void importExportCharacter();
-    void importExportBanner();
-
+    void ExportCharacter();
+    void ExportBanner();
 }

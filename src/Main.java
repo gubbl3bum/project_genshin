@@ -3,24 +3,41 @@ import java.util.List;
 public class Main {
     public static void main(String[] args){
         System.out.println("---------- GENSHIN DATABASE PROJECT ----------");
-        List<Banner> banners = Valid.bannerImportDatabase();
-        List<Character> characters = Valid.characterImportDatabase();
-        DataBase database = new DataBase(characters, banners);
-        displayMenu(database);
+        System.out.println("1. Import data from CSV file");
+        System.out.println("2. Import data from database");
+        System.out.print("\nplease put your input: ");
+        boolean valid = false;
+        DataBase database;
+        while(!valid){
+            String choice = inputString();
+            switch(choice){
+                case "1":
+                    List<Banner> bannersCSV = Valid.bannerImportCSV();
+                    List<Character> charactersCSV = Valid.characterImportCSV();
+                    database = new DataBase(charactersCSV,bannersCSV);
+                    displayMenu(database);
+                    valid = true;
+                    break;
+                case "2":
+                    List<Banner> banners = Valid.bannerImportDatabase();
+                    List<Character> characters = Valid.characterImportDatabase();
+                    database = new DataBase(characters,banners);
+                    displayMenu(database);
+                    valid = true;
+                    break;
+                default:
+                    System.out.println("Wrong option - try again!");
+                    valid = false;
+            }
+        }
     }
     public static String inputString(){
         Scanner scanner = new Scanner(System.in);
         return scanner.nextLine();
     }
-    public static void goToMenu(String input,DataBase database){
-        if(input.equals("-")){
-            System.out.print("Exiting to menu...\nclick any button...");
-            inputString();
-            displayMenu(database);
-        }   }
     public static void exitToMenu(DataBase database){
         System.out.print("\nclick any button to go back to menu:");
-        String exit = inputString();
+        inputString();
         displayMenu(database);
     }
     public static void displayMenu(DataBase database){
@@ -32,7 +49,7 @@ public class Main {
         System.out.println("4. Search character by criteria");
         System.out.println("5. Display all banners");
         System.out.println("6. Current banner");
-        System.out.println("7. Search banners by character");
+        System.out.println("7. Search banners by criteria");
         System.out.println("8. Add new banner");
         System.out.println("9. Import/export characters from/to csv file");
         System.out.println("10. Import/export banners from/to csv file");
@@ -74,11 +91,11 @@ public class Main {
                     exitToMenu(database);
                     break;
                 case "9":
-                    database.importExportCharacter();
+                    database.ExportCharacter();
                     exitToMenu(database);
                     break;
                 case "10":
-                    database.importExportBanner();
+                    database.ExportBanner();
                     exitToMenu(database);
                     break;
                 case "11":
@@ -87,5 +104,7 @@ public class Main {
                 default:
                     System.out.println("Wrong option - try again");
                     displayMenu(database);
-            }   }   }
+            }
+        }
+    }
 }

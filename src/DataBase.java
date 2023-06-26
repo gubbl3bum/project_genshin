@@ -1,7 +1,13 @@
+import com.opencsv.CSVWriter;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
@@ -18,12 +24,14 @@ public class DataBase implements DataBase_operations {
             return false;
         }else{
             return true;
-        }   }
+        }
+    }
     public void displayCharacter(){
         System.out.println("Displaying all characters: ");
         for(Character search : characters){
             System.out.println(search.toString());
-        }   }
+        }
+    }
     @Override
     public void displayCharacterStats() {
         boolean valid = false;
@@ -33,15 +41,18 @@ public class DataBase implements DataBase_operations {
             if (goToMenu(name)) {
                 for (Character search : characters) {
                     if (search.getName().equals(name)) {
-                        System.out.println(search.toString());
+                        System.out.println(search);
                         valid = true;
-                    }   }
+                    }
+                }
                 if (!valid) {
                     System.out.print("Character not found in database! try again\n");
                 }
             }else{
                 break;
-            }   }   }
+            }
+        }
+    }
     @Override
     public void addCharacter() {
         System.out.println("Adding new character...");
@@ -58,7 +69,10 @@ public class DataBase implements DataBase_operations {
                     System.out.print("Character already in database! try again!\n");
                     valid = false;
                     break;
-                }   }   }else break;}
+                }
+            }
+            }else break;
+        }
         String element = Valid.validElement();
         String region = Valid.validRegion();
         String gender = Valid.validGender();
@@ -89,7 +103,8 @@ public class DataBase implements DataBase_operations {
             con.close();
         } catch (Exception e) {
             System.out.println(e);
-        }   }
+        }
+    }
     @Override
     public void searchCharacters() {
         System.out.println("Search characters by:");
@@ -120,7 +135,9 @@ public class DataBase implements DataBase_operations {
                 default:
                     System.out.println("Wrong option - try again");
                     searchCharacters();
-            }   }  }
+            }
+        }
+    }
     public void searchElement(){
         System.out.println("\nSearching by element...");
         String element = Valid.validElement();
@@ -129,7 +146,8 @@ public class DataBase implements DataBase_operations {
             if(element.equals(search.getElement())){
                 System.out.println(search.toString());
                 count++;
-            }   }
+            }
+        }
         System.out.println("Printed " + count + " character/s");
     }
     public void searchRegion(){
@@ -140,7 +158,8 @@ public class DataBase implements DataBase_operations {
             if(region.equals(search.getRegion())){
                 System.out.println(search.toString());
                 count++;
-            }   }
+            }
+        }
         System.out.println("Printed " + count + " character/s");
     }
     public void searchSex(){
@@ -151,7 +170,8 @@ public class DataBase implements DataBase_operations {
             if(gender.equals(search.getGender())){
                 System.out.println(search.toString());
                 count++;
-            }   }
+            }
+        }
         System.out.println("Printed " + count + " character/s");
     }
     public void searchAge(){
@@ -162,7 +182,8 @@ public class DataBase implements DataBase_operations {
             if(age.equals(search.getAge())){
                 System.out.println(search.toString());
                 count++;
-            }   }
+            }
+        }
         System.out.println("Printed " + count + " character/s");
     }
     public void searchWeapon(){
@@ -173,7 +194,8 @@ public class DataBase implements DataBase_operations {
             if(weapon.equals(search.getWeapon())){
                 System.out.println(search.toString());
                 count++;
-            }   }
+            }
+        }
         System.out.println("Printed " + count + " character/s");
     }
     @Override
@@ -181,7 +203,8 @@ public class DataBase implements DataBase_operations {
         System.out.println("Displaying all banners...");
         for(Banner search : banners){
             System.out.println(search.toString());
-        }   }
+        }
+    }
     @Override
     public void currentBanner() {
         System.out.println("Current banners: ");
@@ -189,26 +212,56 @@ public class DataBase implements DataBase_operations {
         for(Banner search : banners){
             if(currentDate.after(search.getDateStart()) && currentDate.before(search.getDateEnd())){
                 System.out.println(search.toString());
-            }   }   }
+            }
+        }
+    }
     @Override
     public void searchBanners() {
-        System.out.println("Searching banners by character...");
+        System.out.println("Searching banners by:");
+        System.out.println("1. Characters");
+        System.out.println("2. Date");
+        System.out.print("\nplease put your input: ");
+        String choice = scanner.nextLine();
+        Date date = null;
         int prints = 0;
         boolean valid = false;
-        while(!valid){
-            System.out.print("Give characater name: ");
-            String name = scanner.nextLine();
-                for (Banner search : banners){
-                    if(search.getCharacter5().equals(name) || search.getCharacter4_1().equals(name) || search.getCharacter4_2().equals(name)
-                        || search.getCharacter4_3().equals(name)){
-                    System.out.println(search.toString());
-                    prints++;
-                    valid = true;
-                }   }
-            if(prints <= 0){
-                System.out.println("Character not found in database! please try again\n");
-                valid = false;
-            }   }   }
+        switch(choice){
+            case "1":
+                while(!valid){
+                    System.out.print("Give characater name: ");
+                    String name = scanner.nextLine();
+                    if(goToMenu(name)){
+                    for (Banner search : banners){
+                        if(search.getCharacter5().equals(name) || search.getCharacter4_1().equals(name) || search.getCharacter4_2().equals(name)
+                                || search.getCharacter4_3().equals(name)){
+                            System.out.println(search.toString());
+                            prints++;
+                            valid = true;
+                        }   }
+                    if(prints <= 0){
+                        System.out.println("Character not found in database! please try again\n");
+                        valid = false;
+                    }
+                    }
+                }
+                break;
+            case "2":
+                while(!valid){
+                    System.out.print("Give date: ");
+                    date = Valid.stringToDate();
+                    for (Banner search : banners){
+                        if(date.after(search.getDateStart()) && date.before(search.getDateEnd())){
+                            System.out.println(search.toString());
+                            prints++;
+                            valid = true;
+                        }   }
+                    if(prints <= 0){
+                        System.out.println("Banner not found in database! please try again\n");
+                        valid = false;
+                    }
+                }
+        }
+    }
     @Override
     public void addBanner() {
         System.out.println("Adding banner...");
@@ -239,10 +292,12 @@ public class DataBase implements DataBase_operations {
                     validChar = true;
                     char5 = search.getId();
                     break;
-                }   }
+                }
+            }
             if(!validChar){
                 System.out.println("Selected character is invalid, please try again");
-            }   }
+            }
+            }
             validChar = false;
             String character4_1 = "";
             int char4_1 = 0;
@@ -256,7 +311,8 @@ public class DataBase implements DataBase_operations {
                         break;  }
                 } if(!validChar){
                     System.out.println("Selected character is invalid , please try again");
-                }   }
+                }
+            }
             validChar = false;
             String character4_2 = "";
             int char4_2 = 0;
@@ -311,11 +367,76 @@ public class DataBase implements DataBase_operations {
             System.out.println(e);
         }   }   }
     @Override
-    public void importExportCharacter() {
-
+    public void ExportCharacter(){
+            System.out.println("Default path: \\projekt_genshin\\characters.csv");
+            String charactersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\characters.csv";
+            System.out.print("Give your input: ");
+            String input = scanner.nextLine();
+            if(!input.equals("")){
+                charactersPath = input;}
+            try{
+                if(goToMenu(charactersPath)){
+                    CSVWriter characterWriter = new CSVWriter(new FileWriter(charactersPath));
+                    List<String[]> characterData = new ArrayList<>();
+                    for (Character search : characters){
+                        String[] row = {
+                                search.getName(),
+                                search.getElement(),
+                                search.getRegion(),
+                                search.getGender(),
+                                search.getAge(),
+                                search.getWeapon(),
+                                String.valueOf(search.getHealth()),
+                                String.valueOf(search.getAttack()),
+                                String.valueOf(search.getDefense()),
+                                String.valueOf(search.getCritRate()),
+                                String.valueOf(search.getCritDamage()),
+                                String.valueOf(search.getQuality()),
+                                String.valueOf(search.getElementalDamageBonus()),
+                                String.valueOf(search.getId()),
+                        };
+                        characterData.add(row);     }
+                    //zapis characterData do pliku
+                    characterWriter.writeAll(characterData);
+                    characterWriter.close();
+                    System.out.println("Characters saved to CSV file successfully");
+                }
+            } catch (IOException e) {
+                System.out.println("Error occurred while saving data to CSV file.");
+            }
     }
+    //dodanie jako maven dependencies opencsv wersja 5.7
     @Override
-    public void importExportBanner() {
-
+    public void ExportBanner() {
+            System.out.println("Default path: \\projekt_genshin\\banners.csv");
+            String bannersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\banners.csv";
+            System.out.print("Give file path: ");
+            String input = scanner.nextLine();
+            if(!input.equals("")){
+                bannersPath = input;
+            }
+            try{
+                if(goToMenu(bannersPath)){
+                    CSVWriter bannerWriter = new CSVWriter(new FileWriter(bannersPath));
+                    List<String[]> bannersData = new ArrayList<>();
+                    for(Banner search : banners){
+                        String[] row = {
+                                search.getName(),
+                                String.valueOf(search.getDateStart()),
+                                String.valueOf(search.getDateEnd()),
+                                search.getCharacter5(),
+                                search.getCharacter4_1(),
+                                search.getCharacter4_2(),
+                                search.getCharacter4_3(),
+                                search.getVersion() };
+                                bannersData.add(row);
+                    }
+                    bannerWriter.writeAll(bannersData);
+                    bannerWriter.close();
+                    System.out.println("Banners saved to CSV file successfully");
+                }
+            } catch (IOException e){
+                System.out.println("Error occurred while saving data to CSV file.");
+            }
+        }
     }
-}
