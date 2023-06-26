@@ -48,7 +48,7 @@ public class Valid {
             }
             con.close();
         } catch (Exception e){
-            System.out.println(e);
+            System.out.println("Error while importing data: " + e);
         }
         return character;
     }
@@ -60,12 +60,13 @@ public class Valid {
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test",login,pswd);
-            String query = "SELECT banner.name, dateStart, dateEnd, characters.name, characters1.name AS character4_1, characters2.name AS character4_2, characters3.name AS character4_3, version\n" +
-                    "FROM banner\n" +
-                    "JOIN characters ON banner.character5 = characters.id\n" +
-                    "JOIN characters AS characters1 ON banner.character4_1 = characters1.id\n" +
-                    "JOIN characters AS characters2 ON banner.character4_2 = characters2.id\n" +
-                    "JOIN characters AS characters3 ON banner.character4_3 = characters3.id;";
+            String query = """
+                    SELECT banner.name, dateStart, dateEnd, characters.name, characters1.name AS character4_1, characters2.name AS character4_2, characters3.name AS character4_3, version
+                    FROM banner
+                    JOIN characters ON banner.character5 = characters.id
+                    JOIN characters AS characters1 ON banner.character4_1 = characters1.id
+                    JOIN characters AS characters2 ON banner.character4_2 = characters2.id
+                    JOIN characters AS characters3 ON banner.character4_3 = characters3.id;""";
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
@@ -88,9 +89,9 @@ public class Valid {
     }
     //importowanie tabeli characters z pliku CSV
     public static List<Character> characterImportCSV(){
-        System.out.println("Default path: \\projekt_genshin\\characters.csv");
+        System.out.println("\nDefault path: \\projekt_genshin\\characters.csv");
         String charactersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\characters.csv";
-        System.out.print("Give your input: ");
+        System.out.print("Give file path: ");
         String input = scanner.nextLine();
         if(!input.equals("")){
             charactersPath = input;}
@@ -108,7 +109,7 @@ public class Valid {
                 int health = Integer.parseInt(row[6]);
                 int attack = Integer.parseInt(row[7]);
                 int defense = Integer.parseInt(row[8]);
-               double critRate = Double.parseDouble(row[9]);
+                double critRate = Double.parseDouble(row[9]);
                 double critDmg = Double.parseDouble(row[10]);
                 int quality = Integer.parseInt(row[11]);
                 double elementalDmg = Double.parseDouble(row[12]);
@@ -119,14 +120,16 @@ public class Valid {
             characterReader.close();
             System.out.println("Characters loaded from CSV files successfully");
         } catch (IOException | CsvException e){
-            System.out.println("An error occured while loading data from CSV file.");
+            System.out.println("An error occurred while loading data from CSV file.");
+            System.out.println("Exiting program...");
+            System.exit(0);
         }
             return characters;
     }
     //importowanie tabeli banners z pliku csv
     public static List<Banner> bannerImportCSV(){
         List<Banner> banners = new ArrayList<>();
-        System.out.println("Default path: \\projekt_genshin\\banners.csv");
+        System.out.println("\nDefault path: \\projekt_genshin\\banners.csv");
         String bannersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\banners.csv";
         System.out.print("Give file path: ");
         String input = scanner.nextLine();
@@ -135,11 +138,13 @@ public class Valid {
         }
         try {
             CSVReader bannerReader = new CSVReader(new FileReader(bannersPath));
-            List<String[]> bannerData = new ArrayList<>();
+            List<String[]> bannerData = bannerReader.readAll();
             for (String[] row : bannerData) {
                 String name = row[0];
-                Date dateStart = stringToDate(row[1]);
-                Date dateEnd = stringToDate(row[2]);
+                String dateStartString = row[1];
+                Date dateStart = convertStringToDate(dateStartString);
+                String dateEndString = row[2];
+                Date dateEnd = convertStringToDate(dateEndString);
                 String character5 = row[3];
                 String character4_1 = row[4];
                 String character4_2 = row[5];
@@ -150,33 +155,34 @@ public class Valid {
             }
             bannerReader.close();
             System.out.println("Banners loaded from CSV file successfully");
-        }catch (IOException e){
+        }catch (IOException  | CsvException e){
             System.out.println("Error occurred while loading data from CSV file");
+            System.out.println("Exiting program...");
+            System.exit(0);
         }
             return banners;
     }
     public static LocalDate validDate(){
         Scanner scanner = new Scanner(System.in);
-        String dateDtring = scanner.next();
+        String dateString = scanner.next();
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(dateDtring, dateFormat);
-        return date;
+        return LocalDate.parse(dateString, dateFormat);
     }
-    public static Date stringToDate(String date){
-        Date result = null;
-        try{
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            result = dateFormat.parse(date);
-        } catch(ParseException e){
+    public static Date convertStringToDate(String dateString) {
+        SimpleDateFormat sourceFormat = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            return sourceFormat.parse(dateString);
+        } catch (ParseException e) {
+            System.out.println("Error occurred while converting date.");
             e.printStackTrace();
+            return null;
         }
-        return result;
     }
-    public static Date stringToDate(){
+    public static Date stringToDate() throws ParseException {
         Scanner scanner = new Scanner(System.in);
         String dateS = scanner.nextLine();
-        Date result = stringToDate(dateS);
-        return result ;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return dateFormat.parse(dateS);
     }
     public static String validElement(){
         String element = "";
@@ -271,7 +277,7 @@ public class Valid {
         }
         return weapon;      }
     public static int validQuality(){
-        String qualityS = "";
+        String qualityS;
         int quality = 0;
         boolean valid = false;
         while (!valid) {
@@ -284,73 +290,58 @@ public class Valid {
                     valid = true;
                 } else {
                     System.out.println("Wrong quality! please try again\n(4 or 5)");
-                    valid = false;
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Wrong quality! please try again\n(4 or 5)");
-                valid = false;
             }
             }else break;
         }
         return  quality;}
     public static int validInt(int type){
-        String inputS= "";
         int inputInt = 0;
         boolean valid = false;
         while (!valid) {
-            switch(type){
-                case 1:
-                    System.out.print("Health: ");
-                    break;
-                case 2:
-                    System.out.print("Attack: ");
-                    break;
-                case 3:
-                    System.out.print("Defense: ");
-                    break;}
-            inputS = scanner.nextLine();
+            switch (type) {
+                case 1 -> System.out.print("Health: ");
+                case 2 -> System.out.print("Attack: ");
+                case 3 -> System.out.print("Defense: ");
+                default -> System.out.println("Wrong input! try again");
+            }
+            String inputS = scanner.nextLine();
             if(DataBase.goToMenu(inputS)){
             try {
                 inputInt = Integer.parseInt(inputS);
                 if (inputInt < 0) {
                     System.out.print("Wrong input! please try again\n(positive number)\n");
-                    valid = false;
                 } else valid = true;
             } catch (NumberFormatException e) {
                 System.out.println("Wrong input! please try again\n(integer)");
-                valid = false;
             }
             }else{
                 break;
             }
         }
-        return inputInt;       }
+        return inputInt;
+    }
     public static double validDouble(int type){
-        String inputS= "";
         double inputDouble = 0;
         boolean valid = false;
         while (!valid) {
-            switch(type){
-                case 1:
-                    System.out.print("Crit rate: ");
-                    break;
-                case 2:
-                    System.out.print("Crit damage: ");
-                    break;
-                case 3:
-                    System.out.print("Elemental damage bonus: ");
-                    break;}
-            inputS = scanner.nextLine();
+            switch (type) {
+                case 1 -> System.out.print("Crit rate: ");
+                case 2 -> System.out.print("Crit damage: ");
+                case 3 -> System.out.print("Elemental damage bonus: ");
+                default -> System.out.println("Wrong input! please try again\n(double)");
+            }
+            String inputS = scanner.nextLine();
             if(DataBase.goToMenu(inputS)){
             try {
                 inputDouble = Double.parseDouble(inputS);
                 if (inputDouble < 0) {
                     System.out.print("Wrong input! please try again\n(positive number)\n");
-                    valid = false;
                 } else valid = true;
             } catch (NumberFormatException e) {
                 System.out.println("Wrong input! please try again\n(double)");
-                valid = false;
             }
             }else break;
         }

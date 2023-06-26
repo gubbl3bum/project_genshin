@@ -5,29 +5,25 @@ public class Main {
         System.out.println("---------- GENSHIN DATABASE PROJECT ----------");
         System.out.println("1. Import data from CSV file");
         System.out.println("2. Import data from database");
-        System.out.print("\nplease put your input: ");
-        boolean valid = false;
         DataBase database;
-        while(!valid){
+        while(true){
+            System.out.print("\nplease put your input: ");
             String choice = inputString();
-            switch(choice){
-                case "1":
+            switch (choice) {
+                case "1" -> {
                     List<Banner> bannersCSV = Valid.bannerImportCSV();
                     List<Character> charactersCSV = Valid.characterImportCSV();
-                    database = new DataBase(charactersCSV,bannersCSV);
+                    database = new DataBase(charactersCSV, bannersCSV);
                     displayMenu(database);
-                    valid = true;
-                    break;
-                case "2":
+                }
+                case "2" -> {
                     List<Banner> banners = Valid.bannerImportDatabase();
                     List<Character> characters = Valid.characterImportDatabase();
-                    database = new DataBase(characters,banners);
+                    database = new DataBase(characters, banners);
+                    System.out.println("Successfully loaded data from database");
                     displayMenu(database);
-                    valid = true;
-                    break;
-                default:
-                    System.out.println("Wrong option - try again!");
-                    valid = false;
+                }
+                default -> System.out.println("Wrong option - try again!");
             }
         }
     }
@@ -51,8 +47,8 @@ public class Main {
         System.out.println("6. Current banner");
         System.out.println("7. Search banners by criteria");
         System.out.println("8. Add new banner");
-        System.out.println("9. Import/export characters from/to csv file");
-        System.out.println("10. Import/export banners from/to csv file");
+        System.out.println("9. Export characters to csv file");
+        System.out.println("10. Export banners to csv file");
         System.out.println("11. Exit ");
         System.out.print("\nplease put your input: ");
         String option = inputString();
@@ -99,7 +95,7 @@ public class Main {
                     exitToMenu(database);
                     break;
                 case "11":
-                    System.out.println("Exit the program");
+                    System.out.println("Exit program...");
                     System.exit(0); //wymuszenie zamkniecia konsoli
                 default:
                     System.out.println("Wrong option - try again");
