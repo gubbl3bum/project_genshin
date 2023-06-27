@@ -23,18 +23,10 @@ public class Banner {
     public String getName() {
         return name;
     }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public Date getDateStart() {
-        return dateStart;
-    }
-    public void setDateStart(Date dateStart) {
-        this.dateStart = dateStart;
-    }
-    public Date getDateEnd() {
-        return dateEnd;
-    }
+    public void setName(String name) {this.name = name;}
+    public Date getDateStart() {return dateStart;}
+    public void setDateStart(Date dateStart) {this.dateStart = dateStart;}
+    public Date getDateEnd() {return dateEnd;}
     public void setDateEnd(Date dateEnd) {
         this.dateEnd = dateEnd;
     }

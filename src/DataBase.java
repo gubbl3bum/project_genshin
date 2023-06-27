@@ -14,9 +14,11 @@ import java.util.Scanner;
 public class DataBase implements DataBase_operations {
     public List<Character> characters;
     public List<Banner> banners;
-    public DataBase(List<Character> characters, List<Banner> banners) {
+    public List<CharacterId> charactersId;
+    public DataBase(List<Character> characters, List<Banner> banners, List<CharacterId> charactersId) {
         this.characters = characters;
         this.banners = banners;
+        this.charactersId = charactersId;
     }
     Scanner scanner = new Scanner(System.in);
     public static boolean goToMenu(String input){
@@ -81,8 +83,8 @@ public class DataBase implements DataBase_operations {
         double critDmg = Valid.validDouble(2);
         int quality = Valid.validQuality();
         double elDmgB = Valid.validDouble(3);
-        Character newCharater = new Character(name, element, region, gender, age, weapon, health, attack, defense, critRate, critDmg, quality, elDmgB);
-        characters.add(newCharater);
+        Character newCharacter = new Character(name, element, region, gender, age, weapon, health, attack, defense, critRate, critDmg, quality, elDmgB);
+        characters.add(newCharacter);
         //dodawanie postaci do bazy danych
         final String login = "gubbl";
         final String pswd = "";
@@ -95,7 +97,7 @@ public class DataBase implements DataBase_operations {
                     "', '" + defense + "', '" + critRate + "', '" + critDmg + "', '" + quality + "', '" + elDmgB + "', NULL);";
             Statement stmt = con.createStatement();
             stmt.executeUpdate(query);
-            System.out.println("Sucesfully added character to database!");
+            System.out.println("Successfully added character to database!");
             con.close();
         } catch (Exception e) {
             System.out.println(e);
@@ -129,67 +131,80 @@ public class DataBase implements DataBase_operations {
         System.out.println("\nSearching by element...");
         String element = Valid.validElement();
         int count = 0;
-        for(Character search : characters){
-            if(element.equals(search.getElement())){
-                System.out.println(search);
-                count++;
+        if(goToMenu(element)){
+            for(Character search : characters){
+                if(element.equals(search.getElement())){
+                    System.out.println(search);
+                    count++;
+                }
+            }
+            if(count>0){
+                System.out.println("Printed " + count + " character/s");
             }
         }
-        if(count>0){
-            System.out.println("Printed " + count + " character/s");
-        }    }
+  }
     public void searchRegion(){
         System.out.println("\nSearching by region...");
         String region = Valid.validRegion();
         int count = 0;
-        for(Character search : characters){
-            if(region.equals(search.getRegion())){
-                System.out.println(search);
-                count++;
+        if(goToMenu(region)){
+            for(Character search : characters){
+                if(region.equals(search.getRegion())){
+                    System.out.println(search);
+                    count++;
+                }
+            }
+            if(count>0){
+                System.out.println("Printed " + count + " character/s");
             }
         }
-        if(count>0){
-            System.out.println("Printed " + count + " character/s");
-        }    }
+ }
     public void searchSex(){
         System.out.println("\nSearching by gender...");
         String gender = Valid.validGender();
         int count = 0;
-        for(Character search : characters){
-            if(gender.equals(search.getGender())){
-                System.out.println(search);
-                count++;
+        if(goToMenu(gender)){
+            for(Character search : characters){
+                if(gender.equals(search.getGender())){
+                    System.out.println(search);
+                    count++;
+                }
+            }
+            if(count>0){
+                System.out.println("Printed " + count + " character/s");
             }
         }
-        if(count>0){
-            System.out.println("Printed " + count + " character/s");
-        }    }
+}
     public void searchAge(){
         System.out.println("\nSearching by age...");
         String age = Valid.validAge();
         int count = 0;
-        for(Character search : characters){
-            if(age.equals(search.getAge())){
-                System.out.println(search);
-                count++;
+        if(goToMenu(age)){
+            for(Character search : characters){
+                if(age.equals(search.getAge())){
+                    System.out.println(search);
+                    count++;
+                }
             }
-        }
-        if(count>0){
-            System.out.println("Printed " + count + " character/s");
+            if(count>0){
+                System.out.println("Printed " + count + " character/s");
+            }
         }
     }
     public void searchWeapon(){
         System.out.println("\nSearching by weapon...");
         String weapon = Valid.validWeapon();
         int count = 0;
-        for(Character search : characters){
-            if(weapon.equals(search.getWeapon())){
-                System.out.println(search);
-                count++;
+        if(goToMenu(weapon)){
+            for(Character search : characters){
+                if(weapon.equals(search.getWeapon())){
+                    System.out.println(search);
+                    count++;
+                }
             }
-        }
-        if(count>0){
-            System.out.println("Printed " + count + " character/s");
+            if(count>0){
+                System.out.println("Printed " + count + " character/s");
+            }
         }
     }
     @Override
@@ -222,7 +237,7 @@ public class DataBase implements DataBase_operations {
         switch (choice) {
             case "1" -> {
                 while (!valid) {
-                    System.out.print("Give characater name: ");
+                    System.out.print("Give character name: ");
                     String name = scanner.nextLine();
                     if (goToMenu(name)) {
                         for (Banner search : banners) {
@@ -267,18 +282,33 @@ public class DataBase implements DataBase_operations {
     @Override
     public void addBanner() {
         System.out.println("Adding banner...");
-        System.out.print("Version: ");
-        String version = scanner.nextLine();
+        String version = "";
+        boolean valid = false;
+        while(!valid){
+            System.out.print("Version: ");
+            version = scanner.nextLine();
+            if(goToMenu(version)){
+                try{
+                    Integer.parseInt(version); //sprawdzenie czy input jest liczba
+                    valid = true;
+                } catch (NumberFormatException e) {
+                    System.out.println("Wrong input! try again\n(format like 1.1)");
+                }
+            }
+
+        }
         int i = 0; // określa liczbe banerów na wersje, nie więcej niż 4!!
         for (Banner search : banners) {
             if (search.getVersion().equals(version)) i++;
         }
         if (i == 4) {
             System.out.println("Too many banners for that version! \nExiting to menu...");
-
         } else {
             System.out.print("Name: ");
             String name = scanner.nextLine();
+            if(name.equals("-")){
+
+            }
             System.out.print("Date start:");
             LocalDate dateStart = Valid.validDate();
             System.out.print("Date end: ");
@@ -289,10 +319,10 @@ public class DataBase implements DataBase_operations {
             while(!validChar){
             System.out.print("5* character: ");
             character5 = scanner.nextLine();
-            for (Character search : characters) {
+            for (CharacterId search : charactersId) {
                 if (search.getName().equals(character5) && search.getQuality() == 5) {
                     validChar = true;
-                    char5 = search.getId();
+                    char5 = search.getCharacter_id();
                     break;
                 }
             }
@@ -306,9 +336,9 @@ public class DataBase implements DataBase_operations {
             while(!validChar){
                 System.out.print("4* first character: ");
                 character4_1 = scanner.nextLine();
-                for(Character search : characters){
+                for (CharacterId search : charactersId) {
                     if(search.getName().equals(character4_1) && search.getQuality() == 4){
-                        char4_1 = search.getId();
+                        char4_1 = search.getCharacter_id();
                         validChar = true;
                         break;  }
                 } if(!validChar){
@@ -321,12 +351,12 @@ public class DataBase implements DataBase_operations {
             while(!validChar){
                 System.out.print("4* second character: ");
                 character4_2 = scanner.nextLine();
-                for(Character search : characters){
+                for (CharacterId search : charactersId) {
                     if(search.getName().equals(character4_2) && search.getQuality() == 4){
                         if(character4_2.equals(character4_1)){
                             System.out.println("Character already in banner, please try again");
                         }else{
-                            char4_2 = search.getId();
+                            char4_2 = search.getCharacter_id();
                             validChar = true;
                         }
                         break;
@@ -340,13 +370,13 @@ public class DataBase implements DataBase_operations {
         while(!validChar){
             System.out.print("4* third character: ");
             character4_3 = scanner.nextLine();
-            for(Character search : characters){
+            for (CharacterId search : charactersId) {
                 if(search.getName().equals(character4_3) && search.getQuality() == 4){
                     if(character4_3.equals(character4_2) || character4_3.equals(character4_1)){
                         System.out.println("Character already in banner, please try again");
                     }else{
                         validChar = true;
-                        char4_3 = search.getId();
+                        char4_3 = search.getCharacter_id();
                     }
                     break;
                 }
@@ -365,7 +395,7 @@ public class DataBase implements DataBase_operations {
                     "(NULL, '"+name+"', '"+dateStart+"', '"+dateEnd+"', '"+char5+"', '"+char4_1+"', '"+char4_2+"', " +
                     "'"+char4_3+"', '"+version+"')";
             stmt.executeUpdate(query);
-            System.out.println("Sucesfully added banner to database!");
+            System.out.println("Successfully added banner to database!");
             con.close();
         } catch (Exception e){
             System.out.println(e);
@@ -383,22 +413,26 @@ public class DataBase implements DataBase_operations {
                     CSVWriter characterWriter = new CSVWriter(new FileWriter(charactersPath));
                     List<String[]> characterData = new ArrayList<>();
                     for (Character search : characters){
-                        String[] row = {
-                                search.getName(),
-                                search.getElement(),
-                                search.getRegion(),
-                                search.getGender(),
-                                search.getAge(),
-                                search.getWeapon(),
-                                String.valueOf(search.getHealth()),
-                                String.valueOf(search.getAttack()),
-                                String.valueOf(search.getDefense()),
-                                String.valueOf(search.getCritRate()),
-                                String.valueOf(search.getCritDamage()),
-                                String.valueOf(search.getQuality()),
-                                String.valueOf(search.getElementalDamageBonus()),
-                        };
-                        characterData.add(row);     }
+                        for(CharacterId searchid : charactersId){
+                            String[] row = {
+                                    search.getName(),
+                                    search.getElement(),
+                                    search.getRegion(),
+                                    search.getGender(),
+                                    search.getAge(),
+                                    search.getWeapon(),
+                                    String.valueOf(search.getHealth()),
+                                    String.valueOf(search.getAttack()),
+                                    String.valueOf(search.getDefense()),
+                                    String.valueOf(search.getCritRate()),
+                                    String.valueOf(search.getCritDamage()),
+                                    String.valueOf(search.getQuality()),
+                                    String.valueOf(search.getElementalDamageBonus()),
+                                    String.valueOf((searchid.getCharacter_id())),
+                            };
+                            characterData.add(row);
+                        }
+                    }
                     //zapis characterData do pliku
                     characterWriter.writeAll(characterData);
                     characterWriter.close();

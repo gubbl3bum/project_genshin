@@ -52,6 +52,30 @@ public class Valid {
         }
         return character;
     }
+    public static List<CharacterId> charactersId(){
+        List<CharacterId> characterId = new ArrayList<>();
+        final String login = "gubbl";
+        final String pswd = "";
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test",login,pswd);
+            String query = "SELECT name,quality, id\n" +
+                    "FROM characters;";
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()){
+                String name = rs.getString(1);
+                int quality = rs.getInt(2);
+                int id = rs.getInt(3);
+                CharacterId characters = new CharacterId(name,quality,id);
+                characterId.add(characters);
+            }
+            con.close();
+        } catch (Exception e){
+            System.out.println("Error while importing data: " + e);
+        }
+        return characterId;
+    }
     //importowanie tabeli banners z bazy danych
     public static List<Banner> bannerImportDatabase(){
         final String login = "gubbl";
@@ -164,9 +188,18 @@ public class Valid {
     }
     public static LocalDate validDate(){
         Scanner scanner = new Scanner(System.in);
-        String dateString = scanner.next();
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return LocalDate.parse(dateString, dateFormat);
+        String dateString = "";
+        LocalDate date = null;
+        while(DataBase.goToMenu(dateString)) {
+            try{
+                dateString = scanner.next();
+                DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                date = LocalDate.parse(dateString, dateFormat);
+            } catch (Exception e) {
+                System.out.println("Error while parsing data,try again");
+            }
+        }
+        return date;
     }
     public static Date convertStringToDate(String dateString) {
         SimpleDateFormat sourceFormat = new SimpleDateFormat("yyyy-MM-dd");

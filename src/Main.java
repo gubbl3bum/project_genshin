@@ -13,13 +13,14 @@ public class Main {
                 case "1" -> {
                     List<Banner> bannersCSV = Valid.bannerImportCSV();
                     List<Character> charactersCSV = Valid.characterImportCSV();
-                    database = new DataBase(charactersCSV, bannersCSV);
-                    displayMenu(database);
+//                    database = new DataBase(charactersCSV, bannersCSV);
+//                    displayMenu(database);
                 }
                 case "2" -> {
                     List<Banner> banners = Valid.bannerImportDatabase();
                     List<Character> characters = Valid.characterImportDatabase();
-                    database = new DataBase(characters, banners);
+                    List<CharacterId> charId = Valid.charactersId();
+                    database = new DataBase(characters, banners,charId);
                     System.out.println("Successfully loaded data from database");
                     displayMenu(database);
                 }
