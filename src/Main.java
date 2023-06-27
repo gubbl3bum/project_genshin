@@ -29,9 +29,9 @@ public class Main {
         System.out.println("8. Search banners by criteria");
         System.out.println("9. Add new banner");
         System.out.println("10. Delete banner");
-        System.out.println("10. Export characters to csv file");
-        System.out.println("11. Export banners to csv file");
-        System.out.println("12. Exit ");
+        System.out.println("11. Export characters to csv file");
+        System.out.println("12. Export banners to csv file");
+        System.out.println("13. Exit ");
         System.out.print("\nplease put your input: ");
         String option = inputString();
         System.out.println(" ");

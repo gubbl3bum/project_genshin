@@ -1,15 +1,17 @@
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.chrono.ChronoLocalDate;
+
 public class Banner {
     private String name;
-    private Date dateStart;
-    private Date dateEnd;
+    private LocalDate dateStart;
+    private LocalDate dateEnd;
     private String character5;
     private String character4_1;
     private String character4_2;
     private String character4_3;
     private String version;
 //konstruktor
-    public Banner(String name, Date dateStart, Date dateEnd, String character5, String character4_1, String character4_2, String character4_3, String version) {
+    public Banner(String name, LocalDate dateStart, LocalDate dateEnd, String character5, String character4_1, String character4_2, String character4_3, String version) {
         this.name = name;
         this.dateStart = dateStart;
         this.dateEnd = dateEnd;
@@ -19,15 +21,15 @@ public class Banner {
         this.character4_3 = character4_3;
         this.version = version;
     }
-    //gettery i setteru
+    //gettery i settery
     public String getName() {
         return name;
     }
     public void setName(String name) {this.name = name;}
-    public Date getDateStart() {return dateStart;}
-    public void setDateStart(Date dateStart) {this.dateStart = dateStart;}
-    public Date getDateEnd() {return dateEnd;}
-    public void setDateEnd(Date dateEnd) {
+    public ChronoLocalDate getDateStart() {return dateStart;}
+    public void setDateStart(LocalDate dateStart) {this.dateStart = dateStart;}
+    public ChronoLocalDate getDateEnd() {return dateEnd;}
+    public void setDateEnd(LocalDate dateEnd) {
         this.dateEnd = dateEnd;
     }
     public String getCharacter5() {

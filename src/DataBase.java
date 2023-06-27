@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -265,9 +264,9 @@ public class DataBase implements DataBase_operations {
     @Override
     public void currentBanner() {
         System.out.println("Current banners: ");
-        Date currentDate = new Date();
+        LocalDate currentDate = LocalDate.now();
         for(Banner search : banners){
-            if(currentDate.after(search.getDateStart()) && currentDate.before(search.getDateEnd())){
+            if(currentDate.isAfter(search.getDateStart()) && currentDate.isBefore(search.getDateEnd())){
                 System.out.println(search);
             }
         }
@@ -279,7 +278,7 @@ public class DataBase implements DataBase_operations {
         System.out.println("2. Date");
         System.out.print("\nplease put your input: ");
         String choice = scanner.nextLine();
-        Date date;
+        LocalDate date;
         int prints = 0;
         boolean valid = false;
         switch (choice) {
@@ -308,14 +307,9 @@ public class DataBase implements DataBase_operations {
             case "2" -> {
                 while (!valid) {
                     System.out.print("Give date: ");
-                    try {
                         date = Valid.stringToDate();
-                    } catch (ParseException e) {
-                        System.out.println("Error while parsing date type data.\nExiting to menu...");
-                        break;
-                    }
                     for (Banner search : banners) {
-                        if (date.after(search.getDateStart()) && date.before(search.getDateEnd())) {
+                        if (date.isAfter(search.getDateStart()) && date.isBefore(search.getDateEnd())) {
                             System.out.println(search);
                             prints++;
                             valid = true;
@@ -339,7 +333,7 @@ public class DataBase implements DataBase_operations {
             version = scanner.nextLine();
             if(goToMenu(version)){
                 try{
-                    Integer.parseInt(version); //sprawdzenie czy input jest liczba
+                    Double.parseDouble(version); //sprawdzenie czy input jest liczba
                     valid = true;
                 } catch (NumberFormatException e) {
                     System.out.println("Wrong input! try again\n(format like 1.1)");
@@ -354,7 +348,7 @@ public class DataBase implements DataBase_operations {
             System.out.println("Too many banners for that version! \nExiting to menu...");
         } else {
             System.out.print("Name: ");
-            String name = scanner.nextLine();
+            String name = scanner.nextLine(); //DODAC RZECZY ZEBY NIE BYŁO PUSTE
             System.out.print("Date start:");
             LocalDate dateStart = Valid.validDate();
             System.out.print("Date end: ");
@@ -460,8 +454,7 @@ public class DataBase implements DataBase_operations {
             boolean valid = false;
             Iterator<Banner> iterator = banners.iterator();
             while(iterator.hasNext()){
-                try{
-                Date date = Valid.stringToDate();
+                LocalDate date = Valid.stringToDate();
                 Banner search = iterator.next();
                 if(name.equals(search.getName()) && date.equals(search.getDateStart())){
                     try{
@@ -477,9 +470,6 @@ public class DataBase implements DataBase_operations {
                     } catch (ClassNotFoundException | SQLException e) {
                         System.out.println("Error while deleting banner.");
                     }
-                }
-                } catch (ParseException e) {
-                    System.out.println("Error while parsing data.");
                 }
             }if(!valid){
                 System.out.println("No such banner in database");

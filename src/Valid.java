@@ -4,12 +4,10 @@ import com.opencsv.exceptions.CsvException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 public class Valid {
@@ -27,7 +25,7 @@ public class Valid {
                     List<Character> charactersCSV = characterImportCSV();
                     List<CharacterId> charactersIdCSV = characterIdCSV();
                     database = new DataBase(charactersCSV, bannersCSV, charactersIdCSV);
-                    System.out.println("S\nuccessfully loaded data from CSV file");
+                    System.out.println("\nSuccessfully loaded data from CSV file");
                     valid = true;
                 }
                 case "2" -> {
@@ -123,8 +121,8 @@ public class Valid {
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 String name = rs.getString(1);
-                Date dateStart = rs.getDate(2);
-                Date dateEnd = rs.getDate(3);
+                LocalDate dateStart = rs.getDate(2).toLocalDate();
+                LocalDate dateEnd = rs.getDate(3).toLocalDate();
                 String character5 = rs.getString(4);
                 String character4_1 = rs.getString(5);
                 String character4_2 = rs.getString(6);
@@ -206,9 +204,9 @@ public class Valid {
             for (String[] row : bannerData) {
                 String name = row[0];
                 String dateStartString = row[1];
-                Date dateStart = convertStringToDate(dateStartString);
+                LocalDate dateStart = convertStringToDate(dateStartString);
                 String dateEndString = row[2];
-                Date dateEnd = convertStringToDate(dateEndString);
+                LocalDate dateEnd = convertStringToDate(dateEndString);
                 String character5 = row[3];
                 String character4_1 = row[4];
                 String character4_2 = row[5];
@@ -241,21 +239,21 @@ public class Valid {
         }
         return date;
     }
-    public static Date convertStringToDate(String dateString) {
-        SimpleDateFormat sourceFormat = new SimpleDateFormat("yyyy-MM-dd");
+    public static LocalDate convertStringToDate(String dateString) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         try {
-            return sourceFormat.parse(dateString);
-        } catch (ParseException e) {
+            return LocalDate.parse(dateString, formatter);
+        } catch (DateTimeParseException e) {
             System.out.println("Error occurred while converting date.");
             e.printStackTrace();
             return null;
         }
     }
-    public static Date stringToDate() throws ParseException {
+    public static LocalDate stringToDate(){
         Scanner scanner = new Scanner(System.in);
         String dateS = scanner.nextLine();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        return dateFormat.parse(dateS);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return LocalDate.parse(dateS, formatter);
     }
     public static String validElement(){
         String element = "";
@@ -354,7 +352,7 @@ public class Valid {
         int quality = 0;
         boolean valid = false;
         while (!valid) {
-            System.out.print("Quality(4 or5): ");
+            System.out.print("Quality(4 or 5): ");
             qualityS = scanner.nextLine();
             if(DataBase.goToMenu(qualityS)){
             try {
