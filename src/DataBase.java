@@ -4,13 +4,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+
 public class DataBase implements DataBase_operations {
     public List<Character> characters;
     public List<Banner> banners;
@@ -26,8 +25,13 @@ public class DataBase implements DataBase_operations {
     }
     public void displayCharacter(){
         System.out.println("Displaying all characters: ");
+        int count = 0;
         for(Character search : characters){
             System.out.println(search.toString());
+            count++;
+        }
+        if(count>0){
+            System.out.println("Printed " + count + " character/s");
         }
     }
     @Override
@@ -97,7 +101,7 @@ public class DataBase implements DataBase_operations {
                     "', '" + defense + "', '" + critRate + "', '" + critDmg + "', '" + quality + "', '" + elDmgB + "', NULL);";
             Statement stmt = con.createStatement();
             stmt.executeUpdate(query);
-            System.out.println("Successfully added character to database!");
+            System.out.println("\nSuccessfully added character to database!");
             con.close();
         } catch (Exception e) {
             System.out.println(e);
@@ -207,11 +211,55 @@ public class DataBase implements DataBase_operations {
             }
         }
     }
+    public void deleteCharacter(){
+        System.out.println("Authorizing user...");
+        System.out.print("Login: ");
+        String adminLogin = scanner.nextLine();
+        System.out.print("Password: ");
+        String adminPassword = scanner.nextLine();
+        if(adminLogin.equals("Administrator") && adminPassword.equals("Test123")){
+            System.out.println("Authorisation complete.");
+            System.out.println("\nIMPORTANT INFORMATION! You can only delete characters that are not added to banners yet!");
+            System.out.println("Most likely character you added, deleting character that is already in database may (and will) cause errors!");
+            System.out.print("\nInput character name: ");
+            String name = scanner.next();
+            boolean valid = false;
+            Iterator<Character> iterator = characters.iterator();
+            while(iterator.hasNext()){
+                Character search = iterator.next();
+                if(name.equals(search.getName())){
+                    try{
+                        Class.forName("com.mysql.cj.jdbc.Driver");
+                        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test", adminLogin,adminPassword);
+                        String query = "DELETE FROM characters WHERE `name` = '"+name+"';";
+                        Statement stmt = con.createStatement();
+                        stmt.executeUpdate(query);
+                        con.close();
+                        iterator.remove();
+                        System.out.println("Successfully deleted character from database.");
+                        valid = true;
+                    } catch (ClassNotFoundException | SQLException e) {
+                        System.out.println("Error while deleting character.");
+                    }
+                }
+            }
+            if(!valid){
+                System.out.println("No such character in database.");
+            }
+        }else{
+            System.out.println("Authorization failed.");
+        }
+    }
     @Override
     public void displayBanner() {
         System.out.println("Displaying all banners...");
+        int count = 0;
         for(Banner search : banners){
             System.out.println(search.toString());
+            count++;
+        }
+        if(count>0){
+            System.out.println("Printed " + count + " banners");
         }
     }
     @Override
@@ -239,7 +287,7 @@ public class DataBase implements DataBase_operations {
                 while (!valid) {
                     System.out.print("Give character name: ");
                     String name = scanner.nextLine();
-                    if (goToMenu(name)) {
+                    if (goToMenu(name)){
                         for (Banner search : banners) {
                             if (search.getCharacter5().equals(name) || search.getCharacter4_1().equals(name) || search.getCharacter4_2().equals(name)
                                     || search.getCharacter4_3().equals(name)) {
@@ -252,6 +300,8 @@ public class DataBase implements DataBase_operations {
                             System.out.println("Character not found in database! please try again\n");
                             valid = false;
                         }
+                    }else{
+                        break;
                     }
                 }
             }
@@ -295,7 +345,6 @@ public class DataBase implements DataBase_operations {
                     System.out.println("Wrong input! try again\n(format like 1.1)");
                 }
             }
-
         }
         int i = 0; // określa liczbe banerów na wersje, nie więcej niż 4!!
         for (Banner search : banners) {
@@ -306,9 +355,6 @@ public class DataBase implements DataBase_operations {
         } else {
             System.out.print("Name: ");
             String name = scanner.nextLine();
-            if(name.equals("-")){
-
-            }
             System.out.print("Date start:");
             LocalDate dateStart = Valid.validDate();
             System.out.print("Date end: ");
@@ -400,11 +446,53 @@ public class DataBase implements DataBase_operations {
         } catch (Exception e){
             System.out.println(e);
         }   }   }
+    public void deleteBanner(){
+        System.out.println("Authorizing user...");
+        System.out.print("Login: ");
+        String adminLogin = scanner.nextLine();
+        System.out.print("Password: ");
+        String adminPassword = scanner.nextLine();
+        if(adminLogin.equals("Administrator") && adminPassword.equals("Test123")){
+            System.out.println("Authorisation complete. ");
+            System.out.print("\nInput banner name: ");
+            String name = scanner.next();
+            System.out.print("DateStart:");
+            boolean valid = false;
+            Iterator<Banner> iterator = banners.iterator();
+            while(iterator.hasNext()){
+                try{
+                Date date = Valid.stringToDate();
+                Banner search = iterator.next();
+                if(name.equals(search.getName()) && date.equals(search.getDateStart())){
+                    try{
+                        Class.forName("com.mysql.cj.jdbc.Driver");
+                        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test", adminLogin,adminPassword);
+                        String query = "DELETE FROM banner WHERE `banner`.`name` = `"+name+"' AND `banner`.`dateStart` = `"+date+";";
+                        Statement stmt = con.createStatement();
+                        banners.remove(search);
+                        stmt.executeUpdate(query);
+                        con.close();
+                        System.out.println("Successfully deleted banner from database.");
+                        valid = true;
+                    } catch (ClassNotFoundException | SQLException e) {
+                        System.out.println("Error while deleting banner.");
+                    }
+                }
+                } catch (ParseException e) {
+                    System.out.println("Error while parsing data.");
+                }
+            }if(!valid){
+                System.out.println("No such banner in database");
+            }
+        }else{
+            System.out.println("Authorization failed.");
+        }
+    }
     @Override
     public void ExportCharacter(){
             System.out.println("Default path: \\projekt_genshin\\characters.csv");
             String charactersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\characters.csv";
-            System.out.print("Give your input: ");
+            System.out.print("(optional) Give your full path: ");
             String input = scanner.nextLine();
             if(!input.equals("")){
                 charactersPath = input;}
@@ -412,8 +500,13 @@ public class DataBase implements DataBase_operations {
                 if(goToMenu(charactersPath)){
                     CSVWriter characterWriter = new CSVWriter(new FileWriter(charactersPath));
                     List<String[]> characterData = new ArrayList<>();
+                    String id = "";
                     for (Character search : characters){
-                        for(CharacterId searchid : charactersId){
+                        for(CharacterId charId : charactersId){
+                            if(search.getName().equals(charId.getName())){
+                                id = String.valueOf(charId.getCharacter_id());
+                            }
+                        }
                             String[] row = {
                                     search.getName(),
                                     search.getElement(),
@@ -428,11 +521,11 @@ public class DataBase implements DataBase_operations {
                                     String.valueOf(search.getCritDamage()),
                                     String.valueOf(search.getQuality()),
                                     String.valueOf(search.getElementalDamageBonus()),
-                                    String.valueOf((searchid.getCharacter_id())),
+                                    id,
+
                             };
                             characterData.add(row);
                         }
-                    }
                     //zapis characterData do pliku
                     characterWriter.writeAll(characterData);
                     characterWriter.close();
@@ -447,24 +540,30 @@ public class DataBase implements DataBase_operations {
     public void ExportBanner() {
             System.out.println("Default path: \\projekt_genshin\\banners.csv");
             String bannersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\banners.csv";
+            System.out.print("(optional) Give your full path: ");
+            String input = scanner.nextLine();
+            if(!input.equals("")){
+                bannersPath = input;}
             try{
-                CSVWriter bannerWriter = new CSVWriter(new FileWriter(bannersPath));
-                List<String[]> bannersData = new ArrayList<>();
-                for(Banner search : banners){
-                    String[] row = {
-                            search.getName(),
-                            String.valueOf(search.getDateStart()),
-                            String.valueOf(search.getDateEnd()),
-                            search.getCharacter5(),
-                            search.getCharacter4_1(),
-                            search.getCharacter4_2(),
-                            search.getCharacter4_3(),
-                            search.getVersion() };
-                    bannersData.add(row);
+                if(goToMenu(bannersPath)){
+                    CSVWriter bannerWriter = new CSVWriter(new FileWriter(bannersPath));
+                    List<String[]> bannersData = new ArrayList<>();
+                    for(Banner search : banners){
+                        String[] row = {
+                                search.getName(),
+                                String.valueOf(search.getDateStart()),
+                                String.valueOf(search.getDateEnd()),
+                                search.getCharacter5(),
+                                search.getCharacter4_1(),
+                                search.getCharacter4_2(),
+                                search.getCharacter4_3(),
+                                search.getVersion() };
+                        bannersData.add(row);
+                    }
+                    bannerWriter.writeAll(bannersData);
+                    bannerWriter.close();
+                    System.out.println("Banners saved to CSV file successfully");
                 }
-                bannerWriter.writeAll(bannersData);
-                bannerWriter.close();
-                System.out.println("Banners saved to CSV file successfully");
             } catch (IOException e){
                 System.out.println("Error occurred while saving data to CSV file.");
             }

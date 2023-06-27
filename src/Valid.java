@@ -3,10 +3,7 @@ import com.opencsv.exceptions.CsvException;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -18,6 +15,34 @@ import java.util.Scanner;
 public class Valid {
     static Scanner scanner = new Scanner(System.in);
     //importowanie tabeli characters z bazy danych
+    public static DataBase selectDatabaseInput(){
+        DataBase database = null;
+        boolean valid = false;
+        while(!valid){
+            System.out.print("\nplease put your input: ");
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1" -> {
+                    List<Banner> bannersCSV = bannerImportCSV();
+                    List<Character> charactersCSV = characterImportCSV();
+                    List<CharacterId> charactersIdCSV = characterIdCSV();
+                    database = new DataBase(charactersCSV, bannersCSV, charactersIdCSV);
+                    System.out.println("S\nuccessfully loaded data from CSV file");
+                    valid = true;
+                }
+                case "2" -> {
+                    List<Banner> banners = bannerImportDatabase();
+                    List<Character> characters = characterImportDatabase();
+                    List<CharacterId> charId = charactersIdDatabase();
+                    database = new DataBase(characters, banners,charId);
+                    System.out.println("\nSuccessfully loaded data from database");
+                    valid = true;
+                }
+                default -> System.out.println("Wrong option - try again!");
+            }
+        }
+        return database;
+    }
     public static List<Character> characterImportDatabase(){
         final String login = "gubbl";
         final String pswd = "";
@@ -48,11 +73,13 @@ public class Valid {
             }
             con.close();
         } catch (Exception e){
-            System.out.println("Error while importing data: " + e);
+            System.out.println("Error while importing data.");
+            System.out.println("Exiting program...");
+            System.exit(0);
         }
         return character;
     }
-    public static List<CharacterId> charactersId(){
+    public static List<CharacterId> charactersIdDatabase(){
         List<CharacterId> characterId = new ArrayList<>();
         final String login = "gubbl";
         final String pswd = "";
@@ -72,11 +99,12 @@ public class Valid {
             }
             con.close();
         } catch (Exception e){
-            System.out.println("Error while importing data: " + e);
+            System.out.println("Error while importing data.");
+            System.out.println("Exiting program...");
+            System.exit(0);
         }
         return characterId;
     }
-    //importowanie tabeli banners z bazy danych
     public static List<Banner> bannerImportDatabase(){
         final String login = "gubbl";
         final String pswd = "";
@@ -107,18 +135,15 @@ public class Valid {
             }
             con.close();
         } catch (Exception e){
-            System.out.println(e);
+            System.out.println("Error while importing data.");
+            System.out.println("Exiting program...");
+            System.exit(0);
         }
         return banners;
     }
-    //importowanie tabeli characters z pliku CSV
     public static List<Character> characterImportCSV(){
         System.out.println("\nDefault path: \\projekt_genshin\\characters.csv");
         String charactersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\characters.csv";
-        System.out.print("Give file path: ");
-        String input = scanner.nextLine();
-        if(!input.equals("")){
-            charactersPath = input;}
         List<Character> characters = new ArrayList<>();
         try{
             CSVReader characterReader = new CSVReader(new FileReader(charactersPath));
@@ -150,16 +175,31 @@ public class Valid {
         }
             return characters;
     }
-    //importowanie tabeli banners z pliku csv
+    public static List<CharacterId> characterIdCSV(){
+        List<CharacterId> characterId = new ArrayList<>();
+        String charIdPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\characters.csv";
+        try{
+            CSVReader characterReader = new CSVReader(new FileReader(charIdPath));
+            List<String[]> characterData = characterReader.readAll();
+            for(String[] row : characterData){
+                String name = row[0];
+                int quality = Integer.parseInt(row[11]);
+                int id = Integer.parseInt(row[13]);
+                CharacterId charId = new CharacterId(name,quality,id);
+                characterId.add(charId);
+            }
+            characterReader.close();
+        } catch (IOException | CsvException e){
+            System.out.println("An error occurred while loading data from CSV file.");
+            System.out.println("Exiting program...");
+            System.exit(0);
+        }
+        return characterId;
+    }
     public static List<Banner> bannerImportCSV(){
         List<Banner> banners = new ArrayList<>();
         System.out.println("\nDefault path: \\projekt_genshin\\banners.csv");
         String bannersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\banners.csv";
-        System.out.print("Give file path: ");
-        String input = scanner.nextLine();
-        if(!input.equals("")){
-            bannersPath = input;
-        }
         try {
             CSVReader bannerReader = new CSVReader(new FileReader(bannersPath));
             List<String[]> bannerData = bannerReader.readAll();
