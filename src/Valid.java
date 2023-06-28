@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.Date;
-
 public class Valid {
     static Scanner scanner = new Scanner(System.in);
     public static DataBase selectDatabaseInput(){
@@ -47,7 +46,7 @@ public class Valid {
         List<Character> character = new ArrayList<>();
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test",login,pswd);
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_project",login,pswd);
             String query = "SELECT name, element, region, gender, age, weapon, health, attack, defense, critRate, critDamage, quality, elemenDmgBonus\n" +
                     "FROM characters;";
             Statement stmt = con.createStatement();
@@ -73,6 +72,7 @@ public class Valid {
         } catch (Exception e){
             System.out.println("Error while importing data.");
             System.out.println("Exiting program...");
+            System.out.println(e);
             System.exit(0);
         }
         return character;
@@ -83,7 +83,7 @@ public class Valid {
         final String pswd = "";
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test",login,pswd);
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_project",login,pswd);
             String query = "SELECT name,quality, id\n" +
                     "FROM characters;";
             Statement stmt = con.createStatement();
@@ -99,6 +99,7 @@ public class Valid {
         } catch (Exception e){
             System.out.println("Error while importing data.");
             System.out.println("Exiting program...");
+            System.out.println(e);
             System.exit(0);
         }
         return characterId;
@@ -109,7 +110,7 @@ public class Valid {
         List<Banner> banners = new ArrayList<>();
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test",login,pswd);
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_project",login,pswd);
             String query = """
                     SELECT banner.name, dateStart, dateEnd, characters.name, characters1.name AS character4_1, characters2.name AS character4_2, characters3.name AS character4_3, version
                     FROM banner
@@ -135,13 +136,18 @@ public class Valid {
         } catch (Exception e){
             System.out.println("Error while importing data.");
             System.out.println("Exiting program...");
+            System.out.println(e);
             System.exit(0);
         }
         return banners;
     }
     public static List<Character> characterImportCSV(){
-        System.out.println("\nDefault path: \\projekt_genshin\\characters.csv");
-        String charactersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\characters.csv";
+        System.out.println("\nDefault path: \\genshin_project\\characters.csv");
+        String charactersPath = "C:\\Users\\gubbl\\IdeaProjects\\genshin_project\\characters.csv";
+        System.out.print("(optional) Give your full path: ");
+        String input = scanner.nextLine();
+        if(!input.equals("")){
+            charactersPath = input;}
         List<Character> characters = new ArrayList<>();
         try{
             CSVReader characterReader = new CSVReader(new FileReader(charactersPath));
@@ -175,7 +181,7 @@ public class Valid {
     }
     public static List<CharacterId> characterIdCSV(){
         List<CharacterId> characterId = new ArrayList<>();
-        String charIdPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\characters.csv";
+        String charIdPath = "C:\\Users\\gubbl\\IdeaProjects\\genshin_project\\characters.csv";
         try{
             CSVReader characterReader = new CSVReader(new FileReader(charIdPath));
             List<String[]> characterData = characterReader.readAll();
@@ -190,14 +196,19 @@ public class Valid {
         } catch (IOException | CsvException e){
             System.out.println("An error occurred while loading data from CSV file.");
             System.out.println("Exiting program...");
+            System.out.println(e);
             System.exit(0);
         }
         return characterId;
     }
     public static List<Banner> bannerImportCSV(){
         List<Banner> banners = new ArrayList<>();
-        System.out.println("\nDefault path: \\projekt_genshin\\banners.csv");
-        String bannersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\banners.csv";
+        System.out.println("\nDefault path: \\genshin_project\\banners.csv");
+        String bannersPath = "C:\\Users\\gubbl\\IdeaProjects\\genshin_project\\banners.csv";
+        System.out.print("(optional) Give your full path: ");
+        String input = scanner.nextLine();
+        if(!input.equals("")){
+            bannersPath = input;}
         try {
             CSVReader bannerReader = new CSVReader(new FileReader(bannersPath));
             List<String[]> bannerData = bannerReader.readAll();
@@ -220,15 +231,26 @@ public class Valid {
         }catch (IOException  | CsvException e){
             System.out.println("Error occurred while loading data from CSV file");
             System.out.println("Exiting program...");
+            System.out.println(e);
             System.exit(0);
         }
             return banners;
     }
     public static LocalDate validDate(){
         Scanner scanner = new Scanner(System.in);
+        System.out.print("  (yyyy-mm-dd): ");
         String dateString = scanner.next();
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(dateString, dateFormat);
+        LocalDate date = null;
+        boolean valid = false;
+        while(!valid){
+            if(!dateString.equals("") || !"****-**-**".matches(dateString)){
+                DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                date = LocalDate.parse(dateString, dateFormat);
+                valid = true;
+            }else{
+                System.out.println("Wrong input! try again");
+            }
+        }
         return date;
     }
     public static Date convertLocalDateToDate(LocalDate localDate) {
@@ -257,6 +279,21 @@ public class Valid {
             return null;
         }
     }
+//    public static Date stringToDate(){
+//        Scanner scanner = new Scanner(System.in);
+//        System.out.print(" (yyyy-mm-dd): ");
+//        String dateS = scanner.nextLine();
+//        Date date = null;
+//            if(!dateS.equals("")){
+//                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//                try {
+//                    date = dateFormat.parse(dateS);
+//                } catch (ParseException e) {
+//                    System.out.println("Error while parsing data." + e);
+//                }
+//            }
+//        return date;
+//    }
     public static String validElement(){
         String element = "";
         boolean valid = false;
@@ -348,7 +385,8 @@ public class Valid {
                 break;
             }
         }
-        return weapon;      }
+        return weapon;
+    }
     public static int validQuality(){
         String qualityS;
         int quality = 0;
@@ -365,11 +403,12 @@ public class Valid {
                     System.out.println("Wrong quality! please try again\n(4 or 5)");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("Wrong quality! please try again\n(4 or 5)");
+                System.out.println("Wrong input! please try again");
             }
             }else break;
         }
-        return  quality;}
+        return  quality;
+    }
     public static int validInt(int type){
         int inputInt = 0;
         boolean valid = false;
@@ -384,7 +423,7 @@ public class Valid {
             if(DataBase.goToMenu(inputS)){
             try {
                 inputInt = Integer.parseInt(inputS);
-                if (inputInt < 0) {
+                if (inputInt < 0 || inputInt == -0) {
                     System.out.print("Wrong input! please try again\n(positive number)\n");
                 } else valid = true;
             } catch (NumberFormatException e) {
@@ -410,7 +449,7 @@ public class Valid {
             if(DataBase.goToMenu(inputS)){
             try {
                 inputDouble = Double.parseDouble(inputS);
-                if (inputDouble < 0) {
+                if (inputDouble < 0 || inputDouble == -0) {
                     System.out.print("Wrong input! please try again\n(positive number)\n");
                 } else valid = true;
             } catch (NumberFormatException e) {
@@ -418,5 +457,6 @@ public class Valid {
             }
             }else break;
         }
-        return inputDouble;     }
+        return inputDouble;
+    }
 }

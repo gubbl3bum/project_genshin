@@ -62,7 +62,7 @@ public class DataBase implements DataBase_operations {
         while (!valid) {
             System.out.print("Name: ");
             name = scanner.nextLine();
-            if(DataBase.goToMenu(name)){
+            if(DataBase.goToMenu(name) || name.equals("") || name.equals("-")){
             for (Character search : characters) {
                 if (!search.getName().equals(name)) {
                     valid = true;
@@ -87,19 +87,19 @@ public class DataBase implements DataBase_operations {
         int quality = Valid.validQuality();
         double elDmgB = Valid.validDouble(3);
         Character newCharacter = new Character(name, element, region, gender, age, weapon, health, attack, defense, critRate, critDmg, quality, elDmgB);
-        characters.add(newCharacter);
         //dodawanie postaci do bazy danych
         final String login = "gubbl";
         final String pswd = "";
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test", login, pswd);
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_project", login, pswd);
             String query = "INSERT INTO `characters` (`name`, `element`, `region`, `gender`, `age`, `weapon`, `health`," +
                     "`attack`, `defense`, `critRate`, `critDamage`, `quality`, `elemenDmgBonus`, `id`) VALUES" +
                     "('" + name + "', '" + element + "', '" + region + "', '" + gender + "', '" + age + "', '" + weapon + "', '" + health + "', '" + attack +
                     "', '" + defense + "', '" + critRate + "', '" + critDmg + "', '" + quality + "', '" + elDmgB + "', NULL);";
             Statement stmt = con.createStatement();
             stmt.executeUpdate(query);
+            characters.add(newCharacter);
             System.out.println("\nSuccessfully added character to database!");
             con.close();
         } catch (Exception e) {
@@ -229,7 +229,7 @@ public class DataBase implements DataBase_operations {
                 if(name.equals(search.getName())){
                     try{
                         Class.forName("com.mysql.cj.jdbc.Driver");
-                        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test", adminLogin,adminPassword);
+                        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_project", adminLogin,adminPassword);
                         String query = "DELETE FROM characters WHERE `name` = '"+name+"';";
                         Statement stmt = con.createStatement();
                         stmt.executeUpdate(query);
@@ -238,6 +238,7 @@ public class DataBase implements DataBase_operations {
                         System.out.println("Successfully deleted character from database.");
                         valid = true;
                     } catch (ClassNotFoundException | SQLException e) {
+                        System.out.println(e);
                         System.out.println("Error while deleting character.");
                     }
                 }
@@ -308,6 +309,7 @@ public class DataBase implements DataBase_operations {
                 while (!valid) {
                     System.out.print("Give date: ");
                         Date date = Valid.stringToDate();
+                    System.out.println(date);
                     for (Banner search : banners) {
                         assert date != null;
                         if (date.after(search.getDateStart()) && date.before(search.getDateEnd())) {
@@ -358,7 +360,7 @@ public class DataBase implements DataBase_operations {
             System.out.println("Too many banners for that version! \nExiting to menu...");
         } else {
             boolean valid = false;
-            String name;
+            String name = null;
             while (!valid) {
                 System.out.print("Name: ");
                 name = scanner.nextLine();
@@ -367,159 +369,165 @@ public class DataBase implements DataBase_operations {
                 } else {
                     valid = true;
                 }
-                System.out.print("Date start:");
-                LocalDate dateStart = Valid.validDate();
-                Date dateStartDate = Valid.convertLocalDateToDate(dateStart);
-                System.out.print("Date end: ");
-                LocalDate dateEnd = Valid.validDate();
-                Date dateEndDate = Valid.convertLocalDateToDate(dateEnd);
-                if(dateStart.isAfter(dateEnd)){
-                    System.out.println("DateStart can not be after DateEnd!\nExiting to menu...");
-                    break;
+            }
+            valid = false;
+            Date dateStartDate = null, dateEndDate = null;
+            LocalDate dateStart = null, dateEnd = null;
+            while (!valid) {
+                System.out.print("Date start");
+                dateStart = Valid.validDate();
+                dateStartDate = Valid.convertLocalDateToDate(dateStart);
+                System.out.print("Date end");
+                dateEnd = Valid.validDate();
+                dateEndDate = Valid.convertLocalDateToDate(dateEnd);
+                if(!dateStart.isAfter(dateEnd)){
+                    valid = true;
+                }else{
+                    System.out.println("DateStart can not be after DateEnd!\ntry again...");
                 }
-                String character5 = null;
-                int char5 = 0;
-                while (!valid) {
-                    System.out.print("5* character: ");
-                    character5 = scanner.nextLine();
-                    for (CharacterId search : charactersId) {
-                        if (search.getName().equals(character5) && search.getQuality() == 5) {
+            }
+            String character5 = null;
+            int char5 = 0;
+            valid = false;
+            while (!valid) {
+                System.out.print("5* character: ");
+                character5 = scanner.nextLine();
+                for (CharacterId search : charactersId) {
+                    if (search.getName().equals(character5) && search.getQuality() == 5) {
+                        valid = true;
+                        char5 = search.getCharacter_id();
+                        break;
+                    }
+                }
+                if (!valid) {
+                    System.out.println("Selected character is invalid, please try again");
+                }
+            }
+            valid = false;
+            String character4_1 = "";
+            int char4_1 = 0;
+            while (!valid) {
+                System.out.print("4* first character: ");
+                character4_1 = scanner.nextLine();
+                for (CharacterId search : charactersId) {
+                    if (search.getName().equals(character4_1) && search.getQuality() == 4) {
+                        char4_1 = search.getCharacter_id();
+                        valid = true;
+                        break;
+                    }
+                }
+                if (!valid) {
+                    System.out.println("Selected character is invalid , please try again");
+                }
+            }
+            valid = false;
+            String character4_2 = "";
+            int char4_2 = 0;
+            while (!valid) {
+                System.out.print("4* second character: ");
+                character4_2 = scanner.nextLine();
+                for (CharacterId search : charactersId) {
+                    if (search.getName().equals(character4_2) && search.getQuality() == 4) {
+                        if (character4_2.equals(character4_1)) {
+                            System.out.println("Character already in banner, please try again");
+                        } else {
+                            char4_2 = search.getCharacter_id();
                             valid = true;
-                            char5 = search.getCharacter_id();
-                            break;
                         }
-                    }
-                    if (!valid) {
-                        System.out.println("Selected character is invalid, please try again");
+                        break;
                     }
                 }
-                valid = false;
-                String character4_1 = "";
-                int char4_1 = 0;
-                while (!valid) {
-                    System.out.print("4* first character: ");
-                    character4_1 = scanner.nextLine();
-                    for (CharacterId search : charactersId) {
-                        if (search.getName().equals(character4_1) && search.getQuality() == 4) {
-                            char4_1 = search.getCharacter_id();
+                if (!valid) {
+                    System.out.println("Selected character is invalid, please try again");
+                }
+            }
+            valid = false;
+            String character4_3 = null;
+            int char4_3 = 0;
+            while (!valid) {
+                System.out.print("4* third character: ");
+                character4_3 = scanner.nextLine();
+                for (CharacterId search : charactersId) {
+                    if (search.getName().equals(character4_3) && search.getQuality() == 4) {
+                        if (character4_3.equals(character4_2) || character4_3.equals(character4_1)) {
+                            System.out.println("Character already in banner, please try again");
+                        } else {
                             valid = true;
-                            break;
+                            char4_3 = search.getCharacter_id();
                         }
-                    }
-                    if (!valid) {
-                        System.out.println("Selected character is invalid , please try again");
+                        break;
                     }
                 }
-                valid = false;
-                String character4_2 = "";
-                int char4_2 = 0;
-                while (!valid) {
-                    System.out.print("4* second character: ");
-                    character4_2 = scanner.nextLine();
-                    for (CharacterId search : charactersId) {
-                        if (search.getName().equals(character4_2) && search.getQuality() == 4) {
-                            if (character4_2.equals(character4_1)) {
-                                System.out.println("Character already in banner, please try again");
-                            } else {
-                                char4_2 = search.getCharacter_id();
-                                valid = true;
-                            }
-                            break;
-                        }
-                    }
-                    if (!valid) {
-                        System.out.println("Selected character is invalid, please try again");
-                    }
+                if (!valid) {
+                    System.out.println("Selected character is invalid, please try again");
                 }
-                valid = false;
-                String character4_3 = null;
-                int char4_3 = 0;
-                while (!valid) {
-                    System.out.print("4* third character: ");
-                    character4_3 = scanner.nextLine();
-                    for (CharacterId search : charactersId) {
-                        if (search.getName().equals(character4_3) && search.getQuality() == 4) {
-                            if (character4_3.equals(character4_2) || character4_3.equals(character4_1)) {
-                                System.out.println("Character already in banner, please try again");
-                            } else {
-                                valid = true;
-                                char4_3 = search.getCharacter_id();
-                            }
-                            break;
-                        }
-                    }
-                    if (!valid) {
-                        System.out.println("Selected character is invalid, please try again");
-                    }
-                }
-                Banner bannerData = new Banner(name,dateStartDate,dateEndDate,character5,character4_1,character4_2,character4_3,version);
-                banners.add(bannerData);
-                //dodanie baneru do bazy danych
-                final String login = "gubbl";
-                final String pswd = "";
-                try {
-                    Class.forName("com.mysql.cj.jdbc.Driver");
-                    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test", login, pswd);
-                    Statement stmt = con.createStatement();
-                    String query = "INSERT INTO `banner` (`idBanner`, `name`, `dateStart`, `dateEnd`, `character5`, `character4_1`, " +
-                            "`character4_2`, `character4_3`, `version`) VALUES " +
-                            "(NULL, '" + name + "', '" + dateStart + "', '" + dateEnd + "', '" + char5 + "', '" + char4_1 + "', '" + char4_2 + "', " +
-                            "'" + char4_3 + "', '" + version + "')";
-                    stmt.executeUpdate(query);
-                    System.out.println("Successfully added banner to database!");
-                    con.close();
-                } catch (Exception e) {
-                    System.out.println(e);
-                }
+            }
+            Banner bannerData = new Banner(name, dateStartDate, dateEndDate, character5, character4_1, character4_2, character4_3, version);
+            banners.add(bannerData);
+            //dodanie baneru do bazy danych
+            final String login = "gubbl";
+            final String pswd = "";
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_project", login, pswd);
+                Statement stmt = con.createStatement();
+                String query = "INSERT INTO `banner` (`idBanner`, `name`, `dateStart`, `dateEnd`, `character5`, `character4_1`, " +
+                        "`character4_2`, `character4_3`, `version`) VALUES " +
+                        "(NULL, '" + name + "', '" + dateStart + "', '" + dateEnd + "', '" + char5 + "', '" + char4_1 + "', '" + char4_2 + "', " +
+                        "'" + char4_3 + "', '" + version + "')";
+                stmt.executeUpdate(query);
+                System.out.println("Successfully added banner to database!");
+                con.close();
+            } catch (Exception e) {
+                System.out.println(e);
             }
         }
     }
-    public void deleteBanner(){
+    public void deleteBanner() {
         System.out.println("Authorizing user...");
         System.out.print("Login: ");
         String adminLogin = scanner.nextLine();
         System.out.print("Password: ");
         String adminPassword = scanner.nextLine();
-        if(adminLogin.equals("Administrator") && adminPassword.equals("Test123")){
+        if (adminLogin.equals("Administrator") && adminPassword.equals("Test123")) {
             System.out.println("Authorisation complete. ");
             System.out.print("\nInput banner name: ");
-            String name = scanner.next();
-            System.out.print("DateStart:");
+            String name = scanner.nextLine();
+            System.out.print("version:");
+            String version = scanner.nextLine();
             boolean valid = false;
             Iterator<Banner> iterator = banners.iterator();
-            while(iterator.hasNext()){
-                Date date = Valid.stringToDate();
+            while (iterator.hasNext()) {
                 Banner search = iterator.next();
-                if(name.equals(search.getName())) {
-                    assert date != null;
-                    if (date.equals(search.getDateStart())) {
+                if (name.equals(search.getName())) {
+                    if (version.equals(search.getVersion())) {
                         try {
                             Class.forName("com.mysql.cj.jdbc.Driver");
-                            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_test", adminLogin, adminPassword);
-                            String query = "DELETE FROM banner WHERE `banner`.`name` = `" + name + "' AND `banner`.`dateStart` = `" + date + ";";
+                            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/genshin_project", adminLogin, adminPassword);
+                            String query = "DELETE FROM banner WHERE `banner`.`name` = '" + name + "' AND `banner`.`version` = '" + version + "';";
                             Statement stmt = con.createStatement();
-                            banners.remove(search);
                             stmt.executeUpdate(query);
                             con.close();
                             System.out.println("Successfully deleted banner from database.");
                             iterator.remove();
                             valid = true;
                         } catch (ClassNotFoundException | SQLException e) {
-                            System.out.println("Error while deleting banner.");
+                            System.out.println("Error while deleting banner." + e);
                         }
                     }
                 }
-            }if(!valid){
+            }
+            if (!valid) {
                 System.out.println("No such banner in database");
             }
-        }else{
-            System.out.println("Authorization failed.");
+        } else {
+                System.out.println("Authorization failed.");
+            }
         }
-    }
     @Override
     public void ExportCharacter(){
-            System.out.println("Default path: \\projekt_genshin\\characters.csv");
-            String charactersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\characters.csv";
+            System.out.println("Default path: \\genshin_project\\characters.csv");
+            String charactersPath = "C:\\Users\\gubbl\\IdeaProjects\\genshin_project\\characters.csv";
             System.out.print("(optional) Give your full path: ");
             String input = scanner.nextLine();
             if(!input.equals("")){
@@ -567,7 +575,7 @@ public class DataBase implements DataBase_operations {
     @Override
     public void ExportBanner() {
             System.out.println("Default path: \\projekt_genshin\\banners.csv");
-            String bannersPath = "C:\\Users\\gubbl\\IdeaProjects\\genszin projekt PROBA NAPRAWY FAJNEJ\\banners.csv";
+            String bannersPath = "C:\\Users\\gubbl\\IdeaProjects\\genshin_project\\banners.csv";
             System.out.print("(optional) Give your full path: ");
             String input = scanner.nextLine();
             if(!input.equals("")){

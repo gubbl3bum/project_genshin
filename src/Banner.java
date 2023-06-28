@@ -1,5 +1,4 @@
 import java.util.Date;
-
 public class Banner {
     private String name;
     private Date dateStart;
