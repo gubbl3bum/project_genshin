@@ -4,15 +4,15 @@ import com.opencsv.exceptions.CsvException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.Date;
+
 public class Valid {
     static Scanner scanner = new Scanner(System.in);
-    //importowanie tabeli characters z bazy danych
     public static DataBase selectDatabaseInput(){
         DataBase database = null;
         boolean valid = false;
@@ -121,8 +121,8 @@ public class Valid {
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 String name = rs.getString(1);
-                LocalDate dateStart = rs.getDate(2).toLocalDate();
-                LocalDate dateEnd = rs.getDate(3).toLocalDate();
+                Date dateStart = rs.getDate(2);
+                Date dateEnd = rs.getDate(3);
                 String character5 = rs.getString(4);
                 String character4_1 = rs.getString(5);
                 String character4_2 = rs.getString(6);
@@ -204,9 +204,9 @@ public class Valid {
             for (String[] row : bannerData) {
                 String name = row[0];
                 String dateStartString = row[1];
-                LocalDate dateStart = convertStringToDate(dateStartString);
+                Date dateStart = convertStringToDate(dateStartString);
                 String dateEndString = row[2];
-                LocalDate dateEnd = convertStringToDate(dateEndString);
+                Date dateEnd = convertStringToDate(dateEndString);
                 String character5 = row[3];
                 String character4_1 = row[4];
                 String character4_2 = row[5];
@@ -226,34 +226,36 @@ public class Valid {
     }
     public static LocalDate validDate(){
         Scanner scanner = new Scanner(System.in);
-        String dateString = "";
-        LocalDate date = null;
-        while(DataBase.goToMenu(dateString)) {
-            try{
-                dateString = scanner.next();
-                DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                date = LocalDate.parse(dateString, dateFormat);
-            } catch (Exception e) {
-                System.out.println("Error while parsing data,try again");
-            }
-        }
+        String dateString = scanner.next();
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(dateString, dateFormat);
         return date;
     }
-    public static LocalDate convertStringToDate(String dateString) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static Date convertLocalDateToDate(LocalDate localDate) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(localDate.getYear(), localDate.getMonthValue() - 1, localDate.getDayOfMonth());
+        return calendar.getTime();
+    }
+    public static Date convertStringToDate(String dateString) {
+        SimpleDateFormat sourceFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
-            return LocalDate.parse(dateString, formatter);
-        } catch (DateTimeParseException e) {
+            return sourceFormat.parse(dateString);
+        } catch (ParseException e) {
             System.out.println("Error occurred while converting date.");
             e.printStackTrace();
             return null;
         }
     }
-    public static LocalDate stringToDate(){
+    public static Date stringToDate(){
         Scanner scanner = new Scanner(System.in);
         String dateS = scanner.nextLine();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        return LocalDate.parse(dateS, formatter);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            return dateFormat.parse(dateS);
+        } catch (ParseException e) {
+            System.out.println("Error while parsing data." + e);
+            return null;
+        }
     }
     public static String validElement(){
         String element = "";
